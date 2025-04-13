@@ -46,7 +46,7 @@ class BaseFunc(metaclass=Func):
         override_arg: Optional[Callable] = None,
         override_ret: Optional[Callable] = None,
         runtime: "VM" = None,
-        cache: Optional[str] = "./cache",
+        cache: Optional[str] = ".cache",
         **kwargs,
     ):
         """
