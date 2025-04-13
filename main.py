@@ -1,6 +1,10 @@
-def main():
-    print("Hello from textpy!")
+from textpy.jit.func.text import TextFunc
+
+
+def test():
+    pass
 
 
 if __name__ == "__main__":
-    main()
+    fun = TextFunc(test)
+    print(fun)
