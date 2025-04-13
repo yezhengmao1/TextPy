@@ -1,11 +1,9 @@
 from typing import Callable, Optional
 
-from textpy.tvm import TVM
-
-from .func import Func
+from .func import BaseFunc
 
 
-class TextFunc(Func):
+class TextFunc(BaseFunc):
     prompt_: str
 
     def __init__(
@@ -20,4 +18,4 @@ class TextFunc(Func):
         self.prompt_ = prompt
 
     def __call__(self, *args, **kwargs):
-        return super().__call__(*args, **kwargs)
+        super().__call__(self, *args, **kwargs)

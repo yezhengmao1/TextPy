@@ -1,6 +1,7 @@
 from typing import Callable, Optional
 
-from .compiler import Compiler
+from ..compiler import Compiler
+from ..func import TextFunc
 
 
 class JIT:
@@ -17,6 +18,17 @@ def jit(fn: Optional[Callable] = None, **kwargs):
     def decorator(fn: Callable) -> JIT:
         assert callable(fn)
         return JIT(fn, **kwargs)
+
+    if fn is not None:
+        return decorator(fn)
+
+    return decorator
+
+
+def text(fn: Optional[Callable] = None, **kwargs):
+    def decorator(fn: Callable) -> TextFunc:
+        assert callable(fn)
+        return TextFunc(fn, **kwargs)
 
     if fn is not None:
         return decorator(fn)

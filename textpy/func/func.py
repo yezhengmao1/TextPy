@@ -1,13 +1,12 @@
-import abc
 import inspect
 from typing import TYPE_CHECKING, Callable, Dict, Optional
 
 if TYPE_CHECKING:
-    from tvm import TVM
+    from vm import VM
 
 
-class FuncRegister(type):
-    registry_: Dict[str, "Func"] = {}
+class Func(type):
+    registry_: Dict[str, "BaseFunc"] = {}
 
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
@@ -15,8 +14,13 @@ class FuncRegister(type):
             mcs.registry_[name] = cls
         return cls
 
+    def __class_getitem__(cls, name):
+        if name not in cls.registry_:
+            raise NotImplementedError
+        return cls.registry_[name]
 
-class Func(metaclass=FuncRegister):
+
+class BaseFunc(metaclass=Func):
     fn_: Callable
 
     fn_name_: str
@@ -30,7 +34,7 @@ class Func(metaclass=FuncRegister):
     override_ret_: Optional[Callable]
 
     # The function will run in the Text Virtual Machine(TVM).
-    runtime_: "TVM"
+    runtime_: "VM"
 
     def __init__(
         self,
@@ -39,7 +43,7 @@ class Func(metaclass=FuncRegister):
         desc: Optional[Callable] = None,
         override_arg: Optional[Callable] = None,
         override_ret: Optional[Callable] = None,
-        runtime: "TVM" = None,
+        runtime: "VM" = None,
         **kwargs,
     ):
         """
@@ -67,5 +71,6 @@ class Func(metaclass=FuncRegister):
 
         del kwargs
 
-    @abc.abstractmethod
-    def __call__(self, *args, **kwargs): ...
+    def __call__(self, *args, **kwargs):
+        assert self.runtime_ is not None
+        self.runtime_(self)
