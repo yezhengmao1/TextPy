@@ -1,0 +1,35 @@
+# 任务
+
+请根据以下步骤来补全函数 {fn_name} 的代码实现：
+1. 请仔细阅读代码上下文信息，理解函数 {fn_name} 预期的行为和功能。
+2. 定位到函数 {fn_name} 处，编写该函数的实现代码。
+3. 尽量使用参考工具接口说明中的工具。
+4. 确保您的实现满足函数的所有要求，并与提供的代码上下文保持一致。
+5. 确保在函数中使用import导入所需要的package。
+6. 您的代码应该简洁、高效且易于理解。如有必要，请添加适当的注释来解释关键逻辑。
+7. 只需要输出 {fn_name} 函数的实现，去除类似 @textpy.code 或 @code 这样的装饰器。
+
+# 示例
+    ## 补全函数 
+        output_the_same_text
+
+    ## 上下文信息
+
+        def other_funcs_befor():
+            pass
+
+        def output_the_same_text(*, text: str) -> str: ...
+
+        def other_funcs_after():
+            pass
+
+    ## 输出
+
+        def output_the_same_text(*, text: str) -> str:
+            return text
+
+# 上下文信息
+{context}
+
+# 参考工具接口说明
+{pypi}

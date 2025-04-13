@@ -1,7 +1,15 @@
 [project]
-name = "textpy"
-version = "0.1.0"
-description = "Add your description here"
+name = "textpy_llm"
+version = "0.1.2"
+description = "TextPy: Collaborative Agent Workflow through Programming and Prompting"
+authors = [
+    {name = "Zhengmao Ye", email = "yezhengmaolove@gmail.com"}
+]
+maintainers = [
+    {name = "Zhengmao Ye", email = "yezhengmaolove@gmail.com"}
+]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "litellm==1.66.0",
+]
