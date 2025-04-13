@@ -1,1 +1,3 @@
-from .jit import jit, text
+from .jit import text
+
+__all__ = ["text"]

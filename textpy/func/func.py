@@ -36,14 +36,17 @@ class BaseFunc(metaclass=Func):
     # The function will run in the Text Virtual Machine(TVM).
     runtime_: "VM"
 
+    cache_: Optional[str]
+
     def __init__(
         self,
         fn: Callable,
         *,
-        desc: Optional[Callable] = None,
+        desc: Optional[str] = None,
         override_arg: Optional[Callable] = None,
         override_ret: Optional[Callable] = None,
         runtime: "VM" = None,
+        cache: Optional[str] = "./cache",
         **kwargs,
     ):
         """
@@ -53,6 +56,7 @@ class BaseFunc(metaclass=Func):
         :param override_arg: the function to override the input
         :param override_ret: the function to override the output
         :param runtime: the runtime for run the function
+        :param cache: the directory for compiler cache the compile result
         """
         assert callable(fn)
 
@@ -68,6 +72,8 @@ class BaseFunc(metaclass=Func):
         self.override_ret_ = override_ret
 
         self.runtime_ = runtime
+
+        self.cache_ = cache
 
         # check the signature, we only support the keyworld only parameters
         for _, param in inspect.signature(self.fn_).parameters.items():

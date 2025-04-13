@@ -1,7 +1,7 @@
 from .text_vm import TextVM
-from .vm import BaseVM
+from .vm import VM
 
 __all__ = [
+    "VM",
     "TextVM",
-    "BaseVM",
 ]
