@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 from ..compiler import Compiler
-from ..func import TextFunc
+from ..func import Func, TextFunc
 
 
 class JIT:
@@ -25,10 +25,20 @@ def jit(fn: Optional[Callable] = None, **kwargs):
     return decorator
 
 
-def text(fn: Optional[Callable] = None, **kwargs):
+def text(
+    fn: Optional[Callable] = None,
+    func: str = "TextFunc",
+    **kwargs,
+):
+    """
+    Create a Func class
+    :param fn: the wrapped function
+    :param func: the register wrapperd function class
+    """
+
     def decorator(fn: Callable) -> TextFunc:
         assert callable(fn)
-        return TextFunc(fn, **kwargs)
+        return Func[func](fn, **kwargs)
 
     if fn is not None:
         return decorator(fn)

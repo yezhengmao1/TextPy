@@ -1,11 +1,8 @@
-import abc
 from typing import Dict
 
-from ..func import Func
 
-
-class VM(type):
-    registry_: Dict[str, "BaseVM"] = {}
+class Engine(type):
+    registry_: Dict[str, "BaseEngine"] = {}
 
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
@@ -19,6 +16,4 @@ class VM(type):
         return cls.registry_[name]
 
 
-class BaseVM(metaclass=VM):
-    @abc.abstractmethod
-    def __call__(self, func: Func, *args, **kwargs): ...
+class BaseEngine(metaclass=Engine): ...

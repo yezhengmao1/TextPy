@@ -1,16 +1,20 @@
 import unittest
 
 from textpy.jit import text
-from textpy.vm import TVM
+from textpy.vm import TextVM
 
 
-@text(runtime=TVM(), prompt="请输出 {text} 字符串，注意只输出文本，不要有额外内容。")
+@text(
+    runtime=TextVM(engine="LMEngine", model="deepseek/deepseek-chat"),
+    prompt="请输出 {text} 字符串，注意只输出文本，不要有额外内容。",
+)
 def test_fn(*, text: str) -> str: ...
 
 
 class TestTextFuncAndTVM(unittest.TestCase):
     def test_run_text_func_in_tvm(self):
-        test_fn(text="Test LLM")
+        output = test_fn(text="Test LLM")
+        assert output == "Test LLM"
 
 
 if __name__ == "__main__":

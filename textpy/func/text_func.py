@@ -22,4 +22,4 @@ class TextFunc(BaseFunc):
         return self.prompt_.format(**kwargs)
 
     def __call__(self, *args, **kwargs):
-        super().__call__(*args, **kwargs)
+        return super().__call__(*args, **kwargs)

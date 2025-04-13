@@ -82,4 +82,4 @@ class BaseFunc(metaclass=Func):
     def __call__(self, *args, **kwargs):
         assert self.runtime_ is not None
 
-        self.runtime_(self, *args, **kwargs)
+        return self.runtime_(self, *args, **kwargs)

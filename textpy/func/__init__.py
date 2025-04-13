@@ -1,6 +1,7 @@
-from .text import BaseFunc, TextFunc
+from .func import Func
+from .text_func import TextFunc
 
 __all__ = [
-    "BaseFunc",
+    "Func",
     "TextFunc",
 ]

@@ -1,10 +1,22 @@
+from typing import Optional
+
+from ..engine import Engine, LMEngine
 from ..func import TextFunc
 from .vm import BaseVM
 
 
-class TVM(BaseVM):
-    def __init__(self):
+class TextVM(BaseVM):
+    engine_: LMEngine
+
+    def __init__(
+        self,
+        *,
+        engine: str = "LMEngine",
+        model: str = "deepseek/deepseek-chat",
+        api_key: Optional[str] = None,
+    ):
         super().__init__()
+        self.engine_ = Engine[engine](model=model, api_key=api_key)
 
     def __call__(self, func: TextFunc, *args, **kwargs):
         """
@@ -20,3 +32,7 @@ class TVM(BaseVM):
         assert len(args) == 0
 
         prompt = func.prompt(*args, **kwargs)
+
+        response = self.engine_.run(prompt)
+
+        return response

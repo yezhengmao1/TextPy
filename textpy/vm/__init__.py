@@ -1,3 +1,7 @@
-from .tvm import TVM
+from .text_vm import TextVM
+from .vm import BaseVM
 
-__all__ = ["TVM"]
+__all__ = [
+    "TextVM",
+    "BaseVM",
+]
