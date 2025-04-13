@@ -6,4 +6,5 @@ def test():
 
 
 if __name__ == "__main__":
-    fun = TextFunc(test)
+    fun = TextFunc(test, prompt="TEst", desc="XX")
+    print(fun)
