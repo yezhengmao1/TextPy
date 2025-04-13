@@ -4,13 +4,13 @@ from textpy.jit import text
 from textpy.vm import TVM
 
 
-@text(runtime=TVM(), prompt="请输出hello world字符串")
-def test_fn() -> str: ...
+@text(runtime=TVM(), prompt="请输出 {text} 字符串，注意只输出文本，不要有额外内容。")
+def test_fn(*, text: str) -> str: ...
 
 
 class TestTextFuncAndTVM(unittest.TestCase):
     def test_run_text_func_in_tvm(self):
-        test_fn()
+        test_fn(text="Test LLM")
 
 
 if __name__ == "__main__":

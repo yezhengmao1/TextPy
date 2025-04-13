@@ -69,8 +69,17 @@ class BaseFunc(metaclass=Func):
 
         self.runtime_ = runtime
 
+        # check the signature, we only support the keyworld only parameters
+        for _, param in inspect.signature(self.fn_).parameters.items():
+            if param.kind != inspect.Parameter.KEYWORD_ONLY:
+                raise ValueError(
+                    "We only support the keyword only parameters for llm better understand your code."
+                    + " The function signature should like func(*, arg1: str) -> str"
+                )
+
         del kwargs
 
     def __call__(self, *args, **kwargs):
         assert self.runtime_ is not None
-        self.runtime_(self)
+
+        self.runtime_(self, *args, **kwargs)

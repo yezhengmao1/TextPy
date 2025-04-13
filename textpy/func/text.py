@@ -17,5 +17,9 @@ class TextFunc(BaseFunc):
 
         self.prompt_ = prompt
 
+    def prompt(self, *args, **kwargs):
+        del args
+        return self.prompt_.format(**kwargs)
+
     def __call__(self, *args, **kwargs):
-        super().__call__(self, *args, **kwargs)
+        super().__call__(*args, **kwargs)
