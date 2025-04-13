@@ -1,11 +1,21 @@
 import abc
 import inspect
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional
 
 from textpy.tvm import TVM
 
 
-class Func:
+class FuncRegister(type):
+    registry_: Dict[str, "Func"] = {}
+
+    def __new__(mcs, name, bases, attrs):
+        cls = super().__new__(mcs, name, bases, attrs)
+        if name not in mcs.registry_:
+            mcs.registry_[name] = cls
+        return cls
+
+
+class Func(metaclass=FuncRegister):
     fn_: Callable
 
     fn_name_: str
