@@ -1,13 +1,9 @@
 import unittest
 
 from textpy.jit import text
-from textpy.vm import TextVM
 
 
-@text(
-    runtime=TextVM(engine="LMEngine", model="deepseek/deepseek-chat"),
-    prompt="请输出 {text} 字符串，注意只输出文本，不要有额外内容。",
-)
+@text(prompt="请输出 {text} 字符串，注意只输出文本，不要有额外内容。")
 def test_fn(*, text: str) -> str: ...
 
 

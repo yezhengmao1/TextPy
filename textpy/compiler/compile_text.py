@@ -13,6 +13,7 @@ _prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pr
 @dataclass
 class TextFuncCompileContext:
     is_done_: bool = False
+    func_context_: str = ""
 
 
 # All prompts in the textpy/compiler/prompts
@@ -25,12 +26,13 @@ def _understand_func(*, fn_name: str, context: str) -> str: ...
 def _gen_text_func(*, fn_source: str, fn_understand: str) -> str: ...
 
 
-def func_context(func: TextFunc) -> str:
+def get_func_context(func: TextFunc, context: TextFuncCompileContext) -> str:
     """
     Collect the func's context, defult: read the function's entire file
     """
     with open(func.fn_file_, "r", encoding="utf-8") as file:
-        return file.read()
+        context.func_context_ = file.read()
+    return context
 
 
 def load_from_cache(func: TextFunc, context: TextFuncCompileContext):
@@ -86,7 +88,7 @@ def understand_func(func: TextFunc, context: TextFuncCompileContext):
     understand the function
     """
     understand_func = _understand_func(
-        fn_name=func.fn_name_, context=func_context(func)
+        fn_name=func.fn_name_, context=context.func_context_
     )
     func.fn_desc_ = understand_func
     return context
@@ -107,6 +109,7 @@ def compile_text_func(func: TextFunc):
     context: TextFuncCompileContext = TextFuncCompileContext()
     compile_text_func_pass: List[Callable] = [
         load_from_cache,
+        get_func_context,
         understand_func,
         gen_text_func_prompt,
         save_to_cache,

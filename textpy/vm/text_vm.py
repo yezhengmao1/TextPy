@@ -13,10 +13,14 @@ class TextVM(BaseVM):
         *,
         engine: str = "LMEngine",
         model: str = "deepseek/deepseek-chat",
+        base_url: Optional[str] = None,
         api_key: Optional[str] = None,
+        **kwargs,
     ):
         super().__init__()
-        self.engine_ = Engine[engine](model=model, api_key=api_key)
+        self.engine_ = Engine[engine](model=model, base_url=base_url, api_key=api_key)
+
+        del kwargs
 
     def __call__(self, func: TextFunc, *args, **kwargs):
         """
