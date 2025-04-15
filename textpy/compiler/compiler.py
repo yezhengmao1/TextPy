@@ -1,6 +1,6 @@
 from typing import Callable, Dict
 
-from ..func import Func, TextFunc
+from ..func import CodeFunc, Func, TextFunc
 from .compile_text import compile_text_func
 
 
@@ -9,6 +9,10 @@ class AICompiler:
     compile_funcs: Dict[Func, Callable] = {
         TextFunc: compile_text_func,
     }
+
+    @staticmethod
+    def set_model():
+        pass
 
     @staticmethod
     def compile(func: Func):

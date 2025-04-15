@@ -7,8 +7,8 @@ from textpy.jit import text
 def test_fn(*, text: str) -> str: ...
 
 
-class TestTextFuncAndTVM(unittest.TestCase):
-    def test_run_text_func_in_tvm(self):
+class TestTextFuncAndTextVM(unittest.TestCase):
+    def test_run_text_func_in_textvm(self):
         output = test_fn(text="Test LLM")
         assert output == "Test LLM"
 
