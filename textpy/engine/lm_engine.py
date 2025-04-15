@@ -14,15 +14,18 @@ class LMEngine(BaseEngine):
 
     def __init__(
         self,
-        model: str,
+        model: str = "deepseek/deepseek-chat",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
+        **kwargs,
     ):
         super().__init__()
 
         self.model_ = model
         self.api_key_ = api_key
         self.base_url_ = base_url
+
+        del kwargs
 
     def run(self, prompt: str):
         resp = completion(

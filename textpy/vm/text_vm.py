@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ..engine import Engine, LMEngine
 from ..func import TextFunc
 from .vm import BaseVM
@@ -12,13 +10,10 @@ class TextVM(BaseVM):
         self,
         *,
         engine: str = "LMEngine",
-        model: str = "deepseek/deepseek-chat",
-        base_url: Optional[str] = None,
-        api_key: Optional[str] = None,
         **kwargs,
     ):
         super().__init__()
-        self.engine_ = Engine[engine](model=model, base_url=base_url, api_key=api_key)
+        self.engine_ = Engine[engine](**kwargs)
 
         del kwargs
 

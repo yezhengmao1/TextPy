@@ -1,3 +1,3 @@
-from .jit import text
+from .jit import code, text
 
-__all__ = ["text"]
+__all__ = ["text", "code"]

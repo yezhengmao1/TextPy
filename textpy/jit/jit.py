@@ -1,43 +1,28 @@
 from typing import Callable, Optional
 
-from ..func import Func, TextFunc
-from ..vm import TextVM
+from ..func import Func
+from ..vm import VM
 
 
-def text(
-    fn: Optional[Callable] = None,
-    func: str = "TextFunc",
-    cache: Optional[str] = ".cache",
-    engine: str = "LMEngine",
-    model: str = "deepseek/deepseek-chat",
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
+def jit(
+    fn: Optional[Callable],
+    func: str,
+    vm: str,
     **kwargs,
-):
+) -> Func:
     """
     Create a Func class
     :param fn: the wrapped function
     :param func: the register wrapperd function class
-    :param cache: the cache dir for compiler
-    :param engine: the execution engine
-    :param model: the engine's model
-    :param base_url: the model;s base url
-    :param api_key: the model's api_key
+    :param vm: the virtual machine for execution
+    :param kwargs: pass the argument to the virtual machine and func
     """
 
-    def decorator(fn: Callable) -> TextFunc:
+    def decorator(fn: Callable) -> Func:
         assert callable(fn)
-        runtime: TextVM = TextVM(
-            engine=engine,
-            model=model,
-            base_url=base_url,
-            api_key=api_key,
-            **kwargs,
-        )
         return Func[func](
             fn,
-            runtime=runtime,
-            cache=cache,
+            runtime=VM[vm](**kwargs),
             **kwargs,
         )
 
@@ -45,3 +30,35 @@ def text(
         return decorator(fn)
 
     return decorator
+
+
+def code(
+    fn: Optional[Callable] = None,
+    func: str = "CodeFunc",
+    vm: str = "CodeVM",
+    **kwargs,
+) -> Func:
+    """
+    Create a CodeFunc class
+    :param fn: the wrapped function
+    :param func: the register wrapperd function class
+    :param vm: the virtual machine for execution
+    :param kwargs: pass the argument to the virtual machine and func
+    """
+    return jit(fn, func=func, vm=vm, **kwargs)
+
+
+def text(
+    fn: Optional[Callable] = None,
+    func: str = "TextFunc",
+    vm: str = "TextVM",
+    **kwargs,
+) -> Func:
+    """
+    Create a TextFunc class
+    :param fn: the wrapped function
+    :param func: the register wrapperd function class
+    :param vm: the virtual machine for execution
+    :param kwargs: pass the argument to the virtual machine and func
+    """
+    return jit(fn, func=func, vm=vm, **kwargs)

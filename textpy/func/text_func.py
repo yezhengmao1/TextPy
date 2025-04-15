@@ -27,8 +27,8 @@ class TextFunc(BaseFunc):
     def __call__(self, *args, **kwargs):
         # if there no prompt we need to compile it
         if self.prompt_ is None:
-            from ..compiler import Compiler
+            from ..compiler import AICompiler
 
-            Compiler.compile(self)
+            AICompiler.compile(self)
 
         return super().__call__(*args, **kwargs)
