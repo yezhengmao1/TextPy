@@ -6,7 +6,7 @@ import yaml
 
 from ..func import CodeFunc
 from ..jit import text
-from .compile_context import CompileContext
+from .compile_pass import CompileContext, CompilePass
 
 _prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
 
@@ -15,30 +15,27 @@ _prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pr
 class CodeFuncCompileContext(CompileContext): ...
 
 
-@text(cache=_prompt_cache_dir)
-def _understand_func(*, fn_name: str, context: str) -> str: ...
-
-
-def load_from_cache(func: CodeFunc, context: CodeFuncCompileContext):
-    """
-    Load the code from cache
-    """
-    if func.cache_ is None:
-        return context
-
-    cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
-    if not os.path.isfile(cache_path):
-        return context
-
-    with open(cache_path, "r", encoding="utf-8") as file:
-        data = yaml.load(file, Loader=yaml.SafeLoader)
-        if "prompt" not in data:
+class LoadCodeFuncFromCachePass(CompilePass):
+    def __call__(self, func: CodeFunc, context: CodeFuncCompileContext):
+        """
+        Load the code from cache
+        """
+        if func.cache_ is None:
             return context
-        func.code_ = data["code"]
-        func.fn_desc_ = data["desc"]
-        context.is_done_ = True
 
-    return context
+        cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
+        if not os.path.isfile(cache_path):
+            return context
+
+        with open(cache_path, "r", encoding="utf-8") as file:
+            data = yaml.load(file, Loader=yaml.SafeLoader)
+            if "prompt" not in data:
+                return context
+            func.code_ = data["code"]
+            func.fn_desc_ = data["desc"]
+            context.is_done_ = True
+
+        return context
 
 
 def save_to_cache(func: CodeFunc, context: CodeFuncCompileContext):
@@ -64,26 +61,6 @@ def save_to_cache(func: CodeFunc, context: CodeFuncCompileContext):
             default_style="|",
         )
 
-    return context
-
-
-def get_func_context(func: CodeFunc, context: CodeFuncCompileContext) -> str:
-    """
-    Collect the func's context, defult: read the function's entire file
-    """
-    with open(func.fn_file_, "r", encoding="utf-8") as file:
-        context.func_context_ = file.read()
-    return context
-
-
-def understand_func(func: CodeFunc, context: CodeFuncCompileContext):
-    """
-    understand the function
-    """
-    understand_func = _understand_func(
-        fn_name=func.fn_name_, context=context.func_context_
-    )
-    func.fn_desc_ = understand_func
     return context
 
 
