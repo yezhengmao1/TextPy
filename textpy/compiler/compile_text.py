@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from typing import List
 
 import yaml
@@ -7,7 +6,7 @@ import yaml
 from ..func import TextFunc
 from ..jit import text
 from .compile_pass import (
-    CompileContext,
+    CompileContextInitPass,
     CompilePass,
     GetFuncContextPass,
     UnderstandFuncPass,
@@ -20,12 +19,8 @@ _prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pr
 def _gen_text_func(*, fn_source: str, fn_understand: str) -> str: ...
 
 
-@dataclass
-class TextFuncCompileContext(CompileContext): ...
-
-
 class LoadTextFuncFromCachePass(CompilePass):
-    def __call__(self, func: TextFunc, context: TextFuncCompileContext):
+    def __call__(self, func: TextFunc, **context):
         """
         Load the prompt from cache
         """
@@ -42,13 +37,13 @@ class LoadTextFuncFromCachePass(CompilePass):
                 return context
             func.prompt_ = data["prompt"]
             func.fn_desc_ = data["desc"]
-            context.is_done_ = True
+            context["is_done"] = True
 
         return context
 
 
 class SaveTextFuncToCachePass(CompilePass):
-    def __call__(self, func: TextFunc, context: TextFuncCompileContext):
+    def __call__(self, func: TextFunc, **context):
         """
         save the prompt to cache
         """
@@ -78,7 +73,7 @@ class SaveTextFuncToCachePass(CompilePass):
 
 
 class GenTextFuncPropmptPass(CompilePass):
-    def __call__(self, func: TextFunc, context: TextFuncCompileContext):
+    def __call__(self, func: TextFunc, **context):
         """
         generate the prompt for textfunc
         """
@@ -90,19 +85,19 @@ class GenTextFuncPropmptPass(CompilePass):
         return context
 
 
-def compile_text_func(func: TextFunc):
-    assert isinstance(func, TextFunc)
+class CompileTextFuncPass(CompilePass):
+    def __call__(self, func: TextFunc, **context):
 
-    context: TextFuncCompileContext = TextFuncCompileContext()
-    compile_text_func_pass: List[CompilePass] = [
-        LoadTextFuncFromCachePass(),
-        GetFuncContextPass(),
-        UnderstandFuncPass(),
-        GenTextFuncPropmptPass(),
-        SaveTextFuncToCachePass(),
-    ]
+        compile_text_func_pass: List[CompilePass] = [
+            CompileContextInitPass(),
+            LoadTextFuncFromCachePass(),
+            GetFuncContextPass(),
+            UnderstandFuncPass(),
+            GenTextFuncPropmptPass(),
+            SaveTextFuncToCachePass(),
+        ]
 
-    for compile_pass in compile_text_func_pass:
-        context = compile_pass(func, context)
-        if context.is_done_:
-            return
+        for compile_pass in compile_text_func_pass:
+            context = compile_pass(func, **context)
+            if context["is_done"]:
+                return

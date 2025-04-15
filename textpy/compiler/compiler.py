@@ -1,13 +1,13 @@
 from typing import Callable, Dict
 
 from ..func import CodeFunc, Func, TextFunc
-from .compile_text import compile_text_func
+from .compile_text import CompileTextFuncPass
 
 
 class AICompiler:
 
     compile_funcs: Dict[Func, Callable] = {
-        TextFunc: compile_text_func,
+        TextFunc: CompileTextFuncPass(),
     }
 
     @staticmethod
@@ -15,7 +15,7 @@ class AICompiler:
         pass
 
     @staticmethod
-    def compile(func: Func):
+    def compile(func: Func, **context):
         if type(func) not in AICompiler.compile_funcs:
             raise NotImplementedError
-        AICompiler.compile_funcs[type(func)](func)
+        AICompiler.compile_funcs[type(func)](func, **context)
