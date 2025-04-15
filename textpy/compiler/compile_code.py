@@ -75,7 +75,6 @@ class CompileCodeFuncPass(CompilePass):
             CompileContextInitPass(),
             LoadCodeFuncFromCachePass(),
             GetFuncContextPass(),
-            UnderstandFuncPass(),
             SaveCodeFuncToCachePass(),
         ]
 
