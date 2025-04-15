@@ -4,7 +4,7 @@ from .func import BaseFunc
 
 
 class TextFunc(BaseFunc):
-    prompt_: str
+    prompt_: Optional[str]
 
     def __init__(
         self,
@@ -17,18 +17,17 @@ class TextFunc(BaseFunc):
 
         self.prompt_ = prompt
 
-    def prompt(self, *args, **kwargs):
-        assert len(args) == 0
+    def prompt(self, **kwargs):
         if self.prompt_ is None:
             raise ValueError("Bug: not compiled this function!!!")
 
         return self.prompt_.format(**kwargs)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, **kwargs):
         # if there no prompt we need to compile it
         if self.prompt_ is None:
             from ..compiler import AICompiler
 
             AICompiler.compile(self)
 
-        return super().__call__(*args, **kwargs)
+        return super().__call__(**kwargs)

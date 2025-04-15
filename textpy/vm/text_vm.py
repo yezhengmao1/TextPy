@@ -15,24 +15,21 @@ class TextVM(BaseVM):
         super().__init__()
         self.engine_ = Engine[engine](**kwargs)
 
-        del kwargs
-
-    def __call__(self, func: TextFunc, *args, **kwargs):
+    def __call__(self, func: TextFunc, **kwargs):
         """
         Call LLM to generate output just like function
-            func(*args, **kwargs)
+            func(**kwargs)
         :param func: the wrapped function
         :param args: the functions' input
         :param kwargs: the functions' input
         """
         if not isinstance(func, TextFunc):
-            raise TypeError("TVM only supported the TextFunc")
+            raise TypeError("TextVM only supported the TextFunc")
         # the args is none
-        assert len(args) == 0
 
-        prompt = func.prompt(*args, **kwargs)
+        prompt = func.prompt(**kwargs)
 
         response = self.engine_.run(prompt)
 
-        # TODO: the response must same
+        # TODO: the response must same with the func's return value
         return response

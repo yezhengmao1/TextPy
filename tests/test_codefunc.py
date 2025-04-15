@@ -3,7 +3,12 @@ import unittest
 from textpy.jit import code
 
 
-@code
+@code(
+    code="""
+def output_the_same_as_text(text: str) -> str:
+      return text
+"""
+)
 def output_the_same_as_text(*, text: str) -> str: ...
 
 

@@ -95,6 +95,9 @@ def understand_func(func: TextFunc, context: TextFuncCompileContext):
 
 
 def gen_text_func_prompt(func: TextFunc, context: TextFuncCompileContext):
+    """
+    generate the prompt for textfunc
+    """
     prompt = _gen_text_func(
         fn_source=func.fn_source_,
         fn_understand=func.fn_desc_,

@@ -85,7 +85,7 @@ class BaseFunc(metaclass=Func):
 
         del kwargs
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, **kwargs):
         assert self.runtime_ is not None
 
-        return self.runtime_(self, *args, **kwargs)
+        return self.runtime_(self, **kwargs)
