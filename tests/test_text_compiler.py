@@ -3,7 +3,7 @@ import unittest
 from textpy.jit import text
 
 
-@text
+@text(cache=None)
 def output_the_same_text(*, text: str) -> str: ...
 
 

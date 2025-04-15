@@ -15,6 +15,10 @@ from .compile_pass import (
 _prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
 
 
+@text(cache=_prompt_cache_dir)
+def _gen_code_func(*, fn_name: str, context: str) -> str: ...
+
+
 class LoadCodeFuncFromCachePass(CompilePass):
     def __call__(self, func: CodeFunc, **context):
         """
@@ -29,7 +33,7 @@ class LoadCodeFuncFromCachePass(CompilePass):
 
         with open(cache_path, "r", encoding="utf-8") as file:
             data = yaml.load(file, Loader=yaml.SafeLoader)
-            if "prompt" not in data:
+            if "code" not in data:
                 return context
             func.code_ = data["code"]
             func.fn_desc_ = data["desc"]
@@ -68,6 +72,19 @@ class SaveCodeFuncToCachePass(CompilePass):
         return context
 
 
+class GenCodeFuncCodePass(CompilePass):
+    def __call__(self, func: CodeFunc, **context):
+        """
+        generate the code for codefunc
+        """
+        code = _gen_code_func(
+            fn_name=func.fn_name_,
+            context=context["func_context"],
+        )
+        print(code)
+        return context
+
+
 class CompileCodeFuncPass(CompilePass):
     def __call__(self, func: CodeFunc, **context):
 
@@ -75,6 +92,7 @@ class CompileCodeFuncPass(CompilePass):
             CompileContextInitPass(),
             LoadCodeFuncFromCachePass(),
             GetFuncContextPass(),
+            GenCodeFuncCodePass(),
             SaveCodeFuncToCachePass(),
         ]
 

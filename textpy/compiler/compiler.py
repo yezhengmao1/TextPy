@@ -1,6 +1,7 @@
 from typing import Callable, Dict
 
 from ..func import CodeFunc, Func, TextFunc
+from .compile_code import CompileCodeFuncPass
 from .compile_text import CompileTextFuncPass
 
 
@@ -8,6 +9,7 @@ class AICompiler:
 
     compile_funcs: Dict[Func, Callable] = {
         TextFunc: CompileTextFuncPass(),
+        CodeFunc: CompileCodeFuncPass(),
     }
 
     @staticmethod
