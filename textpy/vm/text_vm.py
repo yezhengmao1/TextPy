@@ -31,5 +31,7 @@ class TextVM(BaseVM):
 
         response = self.engine_.run(prompt)
 
+        # TODO: check the response
+        # TODO: maybe we need to recompile it
         # TODO: the response must same with the func's return value
         return response

@@ -11,6 +11,8 @@ class PyEngine(BaseEngine):
         """
         the code is python code, and we use the PyEngine
         to run this code and get the output
+        :param code: the function, use the str to define
+        :param kwargs: the function's input argument
         """
         namespace = {}
 
