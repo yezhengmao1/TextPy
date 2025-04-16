@@ -72,7 +72,7 @@ class SaveTextFuncToCachePass(CompilePass):
         return context
 
 
-class GenTextFuncPropmptPass(CompilePass):
+class GenTextFuncPromptPass(CompilePass):
     def __call__(self, func: TextFunc, **context):
         """
         generate the prompt for textfunc
@@ -93,7 +93,7 @@ class CompileTextFuncPass(CompilePass):
             LoadTextFuncFromCachePass(),
             GetFuncContextPass(),
             UnderstandFuncPass(),
-            GenTextFuncPropmptPass(),
+            GenTextFuncPromptPass(),
             SaveTextFuncToCachePass(),
         ]
 
