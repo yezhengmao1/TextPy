@@ -9,14 +9,12 @@ from .compile_pass import (
     CompileContextInitPass,
     CompilePass,
     GetFuncContextPass,
-    UnderstandFuncPass,
+    _textpy_prompt_cache_dir,
 )
 
-_prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
 
-
-@text(cache=_prompt_cache_dir)
-def _gen_text_func(*, fn_source: str, fn_understand: str) -> str: ...
+@text(cache=_textpy_prompt_cache_dir)
+def _gen_text_func(*, fn_name: str, context: str) -> str: ...
 
 
 class LoadTextFuncFromCachePass(CompilePass):
@@ -78,8 +76,8 @@ class GenTextFuncPromptPass(CompilePass):
         generate the prompt for textfunc
         """
         prompt = _gen_text_func(
-            fn_source=func.fn_source_,
-            fn_understand=func.fn_desc_,
+            fn_name=func.fn_name_,
+            context=context["func_context"],
         )
         func.prompt_ = prompt
         return context
@@ -92,7 +90,6 @@ class CompileTextFuncPass(CompilePass):
             CompileContextInitPass(),
             LoadTextFuncFromCachePass(),
             GetFuncContextPass(),
-            UnderstandFuncPass(),
             GenTextFuncPromptPass(),
             SaveTextFuncToCachePass(),
         ]

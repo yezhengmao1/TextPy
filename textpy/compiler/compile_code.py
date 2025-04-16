@@ -9,14 +9,16 @@ from .compile_pass import (
     CompileContextInitPass,
     CompilePass,
     GetFuncContextPass,
-    UnderstandFuncPass,
+    _textpy_prompt_cache_dir,
 )
 
-_prompt_cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prompts")
 
-
-@text(cache=_prompt_cache_dir)
+@text(cache=_textpy_prompt_cache_dir)
 def _gen_code_func(*, fn_name: str, context: str) -> str: ...
+
+
+@text
+def _extract_function_code_from_text(*, text: str, func_name: str) -> str: ...
 
 
 class LoadCodeFuncFromCachePass(CompilePass):
@@ -81,6 +83,8 @@ class GenCodeFuncCodePass(CompilePass):
             fn_name=func.fn_name_,
             context=context["func_context"],
         )
+        print(code)
+        code = _extract_function_code_from_text(text=code, func_name=func.fn_name_)
         print(code)
         return context
 
