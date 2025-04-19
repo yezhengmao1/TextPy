@@ -10,6 +10,8 @@ class LMEngine(BaseEngine):
     api_key_: Optional[str]
     base_url_: Optional[str]
 
+    response_format_: str
+
     token_cnt_: int = 0
 
     def __init__(
@@ -17,6 +19,7 @@ class LMEngine(BaseEngine):
         model: str = "deepseek/deepseek-chat",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
+        response_format: str = "text",
         **kwargs,
     ):
         super().__init__()
@@ -25,6 +28,8 @@ class LMEngine(BaseEngine):
         self.api_key_ = api_key
         self.base_url_ = base_url
 
+        self.response_format_ = response_format
+
         del kwargs
 
     def run(self, prompt: str):
@@ -32,7 +37,11 @@ class LMEngine(BaseEngine):
             model=self.model_,
             api_key=self.api_key_,
             base_url=self.base_url_,
-            messages=[{"content": prompt, "role": "user"}],
+            response_format={"type": self.response_format_},
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant"},
+                {"role": "user", "content": prompt},
+            ],
         )
         self.token_cnt_ += int(resp.usage.total_tokens)
         return resp.choices[0].message.content

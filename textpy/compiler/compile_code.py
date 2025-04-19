@@ -17,8 +17,8 @@ from .compile_pass import (
 def _gen_code_func(*, fn_name: str, context: str) -> str: ...
 
 
-@text
-# without any markdown label, and only text
+@text(response_format="json_object")
+# return json_object, like {"code":"..."}
 def _extract_function_code_from_text(*, text: str, func_name: str) -> str: ...
 
 
@@ -81,6 +81,7 @@ class GenCodeFuncCodePass(CompilePass):
             context=context["func_context"],
         )
         code = _extract_function_code_from_text(text=code, func_name=func.fn_name_)
+        print(code)
         func.code_ = code
         return context
 
