@@ -83,3 +83,6 @@ class BaseFunc(metaclass=Func):
         assert self.runtime_ is not None
 
         return self.runtime_(self, **kwargs)
+
+    def set_runtime(self, runtime: "VM"):
+        self.runtime_ = runtime
