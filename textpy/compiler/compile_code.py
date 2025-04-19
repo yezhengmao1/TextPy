@@ -18,6 +18,7 @@ def _gen_code_func(*, fn_name: str, context: str) -> str: ...
 
 
 @text
+# without any markdown label, and only text
 def _extract_function_code_from_text(*, text: str, func_name: str) -> str: ...
 
 
@@ -38,7 +39,6 @@ class LoadCodeFuncFromCachePass(CompilePass):
             if "code" not in data:
                 return context
             func.code_ = data["code"]
-            func.fn_desc_ = data["desc"]
             context["is_done"] = True
 
         return context
@@ -60,7 +60,6 @@ class SaveCodeFuncToCachePass(CompilePass):
         with open(cache_path, "w", encoding="utf-8") as file:
             data = {
                 "code": func.code_.replace("\\n", "\n"),
-                "desc": func.fn_desc_,
             }
 
             yaml.dump(
@@ -83,9 +82,8 @@ class GenCodeFuncCodePass(CompilePass):
             fn_name=func.fn_name_,
             context=context["func_context"],
         )
-        print(code)
         code = _extract_function_code_from_text(text=code, func_name=func.fn_name_)
-        print(code)
+        func.code_ = code
         return context
 
 

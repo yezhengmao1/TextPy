@@ -27,9 +27,6 @@ class BaseFunc(metaclass=Func):
     fn_file_: str
     fn_source_: str
 
-    # TextPy call llm to generate the understanding of the function
-    fn_desc_: str
-
     override_arg_: Optional[Callable]
     override_ret_: Optional[Callable]
 
@@ -42,7 +39,6 @@ class BaseFunc(metaclass=Func):
         self,
         fn: Callable,
         *,
-        desc: Optional[str] = None,
         override_arg: Optional[Callable] = None,
         override_ret: Optional[Callable] = None,
         runtime: "VM" = None,
@@ -65,8 +61,6 @@ class BaseFunc(metaclass=Func):
         self.fn_name_ = fn.__name__
         self.fn_file_ = inspect.getfile(self.fn_)
         self.fn_source_ = inspect.getsource(self.fn_)
-
-        self.fn_desc_ = desc
 
         self.override_arg_ = override_arg
         self.override_ret_ = override_ret

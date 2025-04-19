@@ -34,7 +34,6 @@ class LoadTextFuncFromCachePass(CompilePass):
             if "prompt" not in data:
                 return context
             func.prompt_ = data["prompt"]
-            func.fn_desc_ = data["desc"]
             context["is_done"] = True
 
         return context
@@ -56,7 +55,6 @@ class SaveTextFuncToCachePass(CompilePass):
         with open(cache_path, "w", encoding="utf-8") as file:
             data = {
                 "prompt": func.prompt_.replace("\\n", "\n"),
-                "desc": func.fn_desc_,
             }
 
             yaml.dump(
