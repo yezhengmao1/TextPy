@@ -8,23 +8,24 @@ prompt: |-
   4. 您的代码应该简洁、高效且易于理解。如有必要，请添加适当的注释来解释关键逻辑。
   5. 只需要输出 {fn_name} 函数的实现。
 
-  # 示例
-    补全函数 output_the_same_text
+    # 示例
+      ## 补全函数 
+          output_the_same_text
 
-    上下文信息
+      ## 上下文信息
 
-      def other_funcs_befor():
-          pass
+          def other_funcs_befor():
+              pass
 
-      def output_the_same_text(*, text: str) -> str: ...
+          def output_the_same_text(*, text: str) -> str: ...
 
-      def other_funcs_after():
-          pass
+          def other_funcs_after():
+              pass
 
-    输出
+      ## 输出
 
-      def output_the_same_text(*, text: str) -> str:
-          return text
+          def output_the_same_text(*, text: str) -> str:
+              return text
   
   # 上下文信息
   {context}

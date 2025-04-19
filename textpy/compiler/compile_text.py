@@ -53,9 +53,7 @@ class SaveTextFuncToCachePass(CompilePass):
         cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
 
         with open(cache_path, "w", encoding="utf-8") as file:
-            data = {
-                "prompt": func.prompt_.replace("\\n", "\n"),
-            }
+            data = {"prompt": func.prompt_}
 
             yaml.dump(
                 data,

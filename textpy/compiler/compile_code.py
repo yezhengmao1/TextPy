@@ -58,9 +58,7 @@ class SaveCodeFuncToCachePass(CompilePass):
         cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
 
         with open(cache_path, "w", encoding="utf-8") as file:
-            data = {
-                "code": func.code_.replace("\\n", "\n"),
-            }
+            data = {"code": func.code_}
 
             yaml.dump(
                 data,
