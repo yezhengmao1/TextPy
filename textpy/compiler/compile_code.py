@@ -1,3 +1,4 @@
+import json
 import os
 from typing import List
 
@@ -81,8 +82,8 @@ class GenCodeFuncCodePass(CompilePass):
             context=context["func_context"],
         )
         code = _extract_function_code_from_text(text=code, func_name=func.fn_name_)
-        print(code)
-        func.code_ = code
+        ret_code_obj = json.loads(code)
+        func.code_ = ret_code_obj["code"]
         return context
 
 
