@@ -4,6 +4,7 @@ from textpy import code, text
 
 
 @text
+# add the comment if need
 def add_new_command_to_docker_file(
     *, docker_file_str: str, new_command_description: str
 ) -> str: ...
@@ -18,8 +19,8 @@ if __name__ == "__main__":
 
     descriptions = [
         "FROM python:3.12.10-bookworm",
-        f"copy the {project_path} to /",
-        f"install the python package in the {project_path}",
+        f"copy the {project_path} to /textpy",
+        f"install the python package in the /textpy",
     ]
     for desc in descriptions:
         docker_file_str = add_new_command_to_docker_file(
