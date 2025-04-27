@@ -1,3 +1,4 @@
+import hashlib
 import os
 from typing import List
 
@@ -12,7 +13,7 @@ from .compile_pass import (
 
 
 @text(cache=_textpy_prompt_cache_dir, constant=True)
-def _gen_text_func(*, fn_name: str, context: str) -> str: ...
+def _textpy_built_in_gen_text_func(*, fn_name: str, context: str) -> str: ...
 
 
 class LoadTextFuncFromCachePass(CompilePass):
@@ -23,7 +24,11 @@ class LoadTextFuncFromCachePass(CompilePass):
         if func.cache_ is None:
             return context
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".text.tpy")
+        file_name = func.fn_name_
+        if not file_name.startswith("_textpy_built_in"):
+            file_name += "." + hashlib.md5(func.fn_source_.encode()).hexdigest()[:8]
+
+        cache_path = os.path.join(func.cache_, file_name + ".text.tpy")
         if not os.path.isfile(cache_path):
             return context
 
@@ -45,7 +50,11 @@ class SaveTextFuncToCachePass(CompilePass):
         if not os.path.exists(func.cache_):
             os.makedirs(func.cache_)
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".text.tpy")
+        file_name = func.fn_name_
+        if not file_name.startswith("_textpy_built_in"):
+            file_name += "." + hashlib.md5(func.fn_source_.encode()).hexdigest()[:8]
+
+        cache_path = os.path.join(func.cache_, file_name + ".text.tpy")
 
         with open(cache_path, "w", encoding="utf-8") as file:
             file.write(func.prompt_)
@@ -57,7 +66,7 @@ class GenTextFuncPromptPass(CompilePass):
         """
         generate the prompt for textfunc
         """
-        prompt = _gen_text_func(
+        prompt = _textpy_built_in_gen_text_func(
             fn_name=func.fn_name_,
             context=context["func_context"],
         )

@@ -1,3 +1,4 @@
+import hashlib
 import os
 from typing import List
 
@@ -26,7 +27,7 @@ def _textpy_built_in_extract_function_source_from_text(
     cache=_textpy_prompt_cache_dir,
     constant=True,
 )
-def _gen_code_func(*, fn_name: str, context: str) -> str: ...
+def _textpy_built_in_gen_code_func(*, fn_name: str, context: str) -> str: ...
 
 
 class LoadCodeFuncFromCachePass(CompilePass):
@@ -37,7 +38,11 @@ class LoadCodeFuncFromCachePass(CompilePass):
         if func.cache_ is None:
             return context
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".code.tpy")
+        file_name = func.fn_name_
+        if not file_name.startswith("_textpy_built_in"):
+            file_name += "." + hashlib.md5(func.fn_source_.encode()).hexdigest()[:8]
+
+        cache_path = os.path.join(func.cache_, file_name + ".code.tpy")
         if not os.path.isfile(cache_path):
             return context
 
@@ -59,7 +64,11 @@ class SaveCodeFuncToCachePass(CompilePass):
         if not os.path.exists(func.cache_):
             os.makedirs(func.cache_)
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".code.tpy")
+        file_name = func.fn_name_
+        if not file_name.startswith("_textpy_built_in"):
+            file_name += "." + hashlib.md5(func.fn_source_.encode()).hexdigest()[:8]
+
+        cache_path = os.path.join(func.cache_, file_name + ".code.tpy")
 
         with open(cache_path, "w", encoding="utf-8") as file:
             file.write(func.code_)
@@ -72,7 +81,7 @@ class GenCodeFuncCodePass(CompilePass):
         """
         generate the code for codefunc
         """
-        text = _gen_code_func(
+        text = _textpy_built_in_gen_code_func(
             fn_name=func.fn_name_,
             context=context["func_context"],
         )

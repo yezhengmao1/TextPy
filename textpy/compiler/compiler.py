@@ -19,14 +19,14 @@ class AICompiler:
         set the compiler used base model
         """
         from .compile_code import (
-            _gen_code_func,
             _textpy_built_in_extract_function_source_from_text,
+            _textpy_built_in_gen_code_func,
         )
-        from .compile_text import _gen_text_func
+        from .compile_text import _textpy_built_in_gen_text_func
 
         lm_funcs: List[TextFunc] = [
-            _gen_code_func,
-            _gen_text_func,
+            _textpy_built_in_gen_code_func,
+            _textpy_built_in_gen_text_func,
             _textpy_built_in_extract_function_source_from_text,
         ]
 
