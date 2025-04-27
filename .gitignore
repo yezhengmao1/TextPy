@@ -3,3 +3,6 @@ __pycache__/
 .venv
 .cache
 *.egg-info
+
+_textpy_built_in*
+**/_textpy_built_in*

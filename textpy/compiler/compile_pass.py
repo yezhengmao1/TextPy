@@ -1,6 +1,7 @@
 import os
 
 from ..func import BaseFunc
+from ..jit import text
 
 _textpy_prompt_cache_dir = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "prompts"

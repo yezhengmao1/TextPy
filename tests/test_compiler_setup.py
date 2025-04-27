@@ -17,6 +17,7 @@ class TestCompilerSetup(unittest.TestCase):
     def test_compiler_setup(self):
         AICompiler.set_compiler(engine="TestEngine")
         assert is_called == True
+        AICompiler.set_compiler(engine="LMEngine")
 
 
 if __name__ == "__main__":

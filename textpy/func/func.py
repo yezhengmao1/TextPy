@@ -35,6 +35,8 @@ class BaseFunc(metaclass=Func):
 
     cache_: Optional[str]
 
+    constant_: bool
+
     def __init__(
         self,
         fn: Callable,
@@ -43,16 +45,18 @@ class BaseFunc(metaclass=Func):
         override_ret: Optional[Callable] = None,
         runtime: "VM" = None,
         cache: Optional[str] = ".cache",
+        constant: bool = False,
         **kwargs,
     ):
         """
         Func class
         :param fn: the wrapped function
         :param desc: the functions' description
-        :param override_arg: the function to override the input
-        :param override_ret: the function to override the output
+        :param override_arg: the function to override the input, if None use the default
+        :param override_ret: the function to override the output, if None use the default
         :param runtime: the runtime for run the function
         :param cache: the directory for compiler cache the compile result
+        :param constant: whether the function can be optimized
         """
         assert callable(fn)
 
@@ -68,6 +72,8 @@ class BaseFunc(metaclass=Func):
         self.runtime_ = runtime
 
         self.cache_ = cache
+
+        self.constant_ = constant
 
         # check the signature, we only support the keyworld only parameters
         for _, param in inspect.signature(self.fn_).parameters.items():
@@ -86,3 +92,12 @@ class BaseFunc(metaclass=Func):
 
     def set_runtime(self, runtime: "VM"):
         self.runtime_ = runtime
+
+    def copy_runtime(self, func: "BaseFunc"):
+        self.runtime_.copy(func.runtime_)
+
+    def set_override_ret(self, func: Callable):
+        self.override_ret_ = func
+
+    def set_override_arg(self, func: Callable):
+        self.override_arg_ = func

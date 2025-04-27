@@ -1,4 +1,3 @@
-import json
 import os
 from typing import List
 
@@ -12,13 +11,22 @@ from .compile_pass import (
 )
 
 
-@text(cache=_textpy_prompt_cache_dir)
+@text(
+    cache=_textpy_prompt_cache_dir,
+    response_format="json_object",
+    constant=True,
+)
+# return json_object, like {"return":""} without any markdown label
+def _textpy_built_in_extract_function_source_from_text(
+    *, text: str, func_name: str
+) -> str: ...
+
+
+@text(
+    cache=_textpy_prompt_cache_dir,
+    constant=True,
+)
 def _gen_code_func(*, fn_name: str, context: str) -> str: ...
-
-
-@text(response_format="json_object")
-# return json_object, like {"code":"..."}
-def _extract_function_code_from_text(*, text: str, func_name: str) -> str: ...
 
 
 class LoadCodeFuncFromCachePass(CompilePass):
@@ -64,13 +72,18 @@ class GenCodeFuncCodePass(CompilePass):
         """
         generate the code for codefunc
         """
-        code = _gen_code_func(
+        text = _gen_code_func(
             fn_name=func.fn_name_,
             context=context["func_context"],
         )
-        code = _extract_function_code_from_text(text=code, func_name=func.fn_name_)
-        ret_code_obj = json.loads(code)
-        func.code_ = ret_code_obj["code"]
+        import json
+
+        func.code_ = json.loads(
+            _textpy_built_in_extract_function_source_from_text(
+                text=text, func_name=func.fn_name_
+            )
+        )["return"]
+
         return context
 
 

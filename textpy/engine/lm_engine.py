@@ -45,3 +45,8 @@ class LMEngine(BaseEngine):
         )
         self.token_cnt_ += int(resp.usage.total_tokens)
         return resp.choices[0].message.content
+
+    def copy(self, engine: "LMEngine"):
+        self.model_ = engine.model_
+        self.api_key_ = engine.api_key_
+        self.base_url_ = engine.base_url_

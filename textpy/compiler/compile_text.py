@@ -11,7 +11,7 @@ from .compile_pass import (
 )
 
 
-@text(cache=_textpy_prompt_cache_dir)
+@text(cache=_textpy_prompt_cache_dir, constant=True)
 def _gen_text_func(*, fn_name: str, context: str) -> str: ...
 
 

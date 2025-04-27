@@ -4,6 +4,7 @@ from textpy.jit import code
 
 
 @code(cache=None)
+# without code decorator
 def output_the_same_text(*, text: str) -> str: ...
 
 
