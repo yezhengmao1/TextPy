@@ -1,0 +1,2 @@
+include textpy/compiler/prompts/_textpy_built_in_gen_text_func.text.tpy
+include textpy/compiler/prompts/_textpy_built_in_gen_code_func.text.tpy

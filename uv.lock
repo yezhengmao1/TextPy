@@ -814,7 +814,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "litellm", specifier = ">=1.66.0" }]
+requires-dist = [{ name = "litellm", specifier = "==1.66.0" }]
 
 [[package]]
 name = "tiktoken"
