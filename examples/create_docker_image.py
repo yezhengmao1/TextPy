@@ -10,6 +10,13 @@ def add_new_command_to_docker_file(
 ) -> str: ...
 
 
+@code
+# return the execute's output, without code decorate
+def execute_the_docker_file_to_create_image(
+    *, docker_file_str: str, docker_image_name: str
+) -> str: ...
+
+
 if __name__ == "__main__":
     assert len(sys.argv) >= 2
 
@@ -22,9 +29,12 @@ if __name__ == "__main__":
         f"copy the {project_path} to /textpy",
         f"install the python package in the /textpy",
     ]
+
     for desc in descriptions:
         docker_file_str = add_new_command_to_docker_file(
             docker_file_str=docker_file_str, new_command_description=desc
         )
 
-        print(docker_file_str)
+    output = execute_the_docker_file_to_create_image(
+        docker_file_str=docker_file_str, docker_image_name="textpy"
+    )
