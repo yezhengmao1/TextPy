@@ -2,8 +2,6 @@ import json
 import os
 from typing import List
 
-import yaml
-
 from ..func import CodeFunc
 from ..jit import text
 from .compile_pass import (
@@ -31,15 +29,12 @@ class LoadCodeFuncFromCachePass(CompilePass):
         if func.cache_ is None:
             return context
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
+        cache_path = os.path.join(func.cache_, func.fn_name_ + ".code.tpy")
         if not os.path.isfile(cache_path):
             return context
 
         with open(cache_path, "r", encoding="utf-8") as file:
-            data = yaml.load(file, Loader=yaml.SafeLoader)
-            if "code" not in data:
-                return context
-            func.code_ = data["code"]
+            func.code_ = file.read()
             context["is_done"] = True
 
         return context
@@ -56,18 +51,10 @@ class SaveCodeFuncToCachePass(CompilePass):
         if not os.path.exists(func.cache_):
             os.makedirs(func.cache_)
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
+        cache_path = os.path.join(func.cache_, func.fn_name_ + ".code.tpy")
 
         with open(cache_path, "w", encoding="utf-8") as file:
-            data = {"code": func.code_}
-
-            yaml.dump(
-                data,
-                file,
-                Dumper=yaml.SafeDumper,
-                allow_unicode=True,
-                default_style="|",
-            )
+            file.write(func.code_)
 
         return context
 

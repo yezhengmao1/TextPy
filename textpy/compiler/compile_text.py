@@ -1,8 +1,6 @@
 import os
 from typing import List
 
-import yaml
-
 from ..func import TextFunc
 from ..jit import text
 from .compile_pass import (
@@ -25,15 +23,12 @@ class LoadTextFuncFromCachePass(CompilePass):
         if func.cache_ is None:
             return context
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
+        cache_path = os.path.join(func.cache_, func.fn_name_ + ".text.tpy")
         if not os.path.isfile(cache_path):
             return context
 
         with open(cache_path, "r", encoding="utf-8") as file:
-            data = yaml.load(file, Loader=yaml.SafeLoader)
-            if "prompt" not in data:
-                return context
-            func.prompt_ = data["prompt"]
+            func.prompt_ = file.read()
             context["is_done"] = True
 
         return context
@@ -50,19 +45,10 @@ class SaveTextFuncToCachePass(CompilePass):
         if not os.path.exists(func.cache_):
             os.makedirs(func.cache_)
 
-        cache_path = os.path.join(func.cache_, func.fn_name_ + ".yaml")
+        cache_path = os.path.join(func.cache_, func.fn_name_ + ".text.tpy")
 
         with open(cache_path, "w", encoding="utf-8") as file:
-            data = {"prompt": func.prompt_}
-
-            yaml.dump(
-                data,
-                file,
-                Dumper=yaml.SafeDumper,
-                allow_unicode=True,
-                default_style="|",
-            )
-
+            file.write(func.prompt_)
         return context
 
 
