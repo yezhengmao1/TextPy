@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -d ".cache" ]; then
+if [ ! -d ".cache" ]; then
     mkdir .cache
-else
+fi
 
 cp ../textpy/compiler/prompts/_textpy_built_in_gen_* .cache/
 

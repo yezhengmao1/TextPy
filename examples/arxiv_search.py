@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Tuple
 
 from rich.logging import RichHandler
 
@@ -26,6 +27,11 @@ def download_pdf_from_arxiv(*, url: str, dir: str, file_name: str): ...
 def extract_text_from_pdf(*, dir: str, file_name: str) -> str: ...
 
 
+@code(cache="/cache")
+# ignore the case sensitivity of "references"
+def extract_text_before_and_after_references(*, text: str) -> Tuple[str, str]: ...
+
+
 if __name__ == "__main__":
     assert len(sys.argv) >= 3
 
@@ -36,5 +42,8 @@ if __name__ == "__main__":
     download_pdf_from_arxiv(url=url, dir=path, file_name=file_name)
 
     text = extract_text_from_pdf(dir=path, file_name=file_name)
-
     print(text)
+
+    before_ref, after_ref = extract_text_before_and_after_references(text=text)
+    print(before_ref)
+    print(after_ref)
