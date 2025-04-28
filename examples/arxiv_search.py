@@ -15,7 +15,7 @@ SEARCH_DEPTH = int(sys.argv[5])
 
 AICompiler.set_compiler(cache=COMPILER_CACHE)
 
-g_tp_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+g_tp_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 
 
 def get_arxiv_package_info() -> str:
