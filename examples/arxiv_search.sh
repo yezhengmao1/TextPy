@@ -8,10 +8,6 @@ if [ ! -d ".cache/arxiv" ]; then
     mkdir .cache/arxiv
 fi
 
-if [ ! -d ".cache/dotfile" ]; then
-    mkdir .cache/dotfile
-fi
-
 if [ ! -d ".cache/prompts" ]; then
     mkdir .cache/prompts
 fi
@@ -26,8 +22,8 @@ CREATE TABLE IF NOT EXISTS papers (
 
 CREATE TABLE IF NOT EXISTS paper_references (
     arxiv_id TEXT,
-    child_arxiv_id TEXT,
-    PRIMARY KEY (arxiv_id, child_arxiv_id)
+    reference_title TEXT,
+    PRIMARY KEY (arxiv_id, reference_title)
 );
 
 EOF
@@ -42,4 +38,4 @@ docker run \
     -w /workspace \
     -e DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY} \
     textpy \
-    python arxiv_search.py ${ARXIV_ID} /cache/arxiv/ /cache/dotfile/ /cache/store.db3 2
+    python arxiv_search.py ${ARXIV_ID} /cache/arxiv/ /cache/dotfile.dot /cache/store.db3 2

@@ -10,7 +10,7 @@ AICompiler.set_compiler(cache=COMPILER_CACHE)
 
 ARXIV_ID = sys.argv[1]
 ARXIV_PAPER_DIR = sys.argv[2]
-DOTFILE_DIR = sys.argv[3]
+DOTFILE_PATHNAME = sys.argv[3]
 SQLITE_DIR = sys.argv[4]
 SEARCH_DEPTH = int(sys.argv[5])
 
@@ -95,11 +95,11 @@ def read_arxiv_paper_summary(*, db_path: str, arxiv_id: str): ...
 # write the sqlite database table like
 # CREATE TABLE IF NOT EXISTS paper_references (
 #     arxiv_id TEXT,
-#     child_arxiv_id TEXT,
-#     PRIMARY KEY (arxiv_id, child_arxiv_id)
+#     reference_title TEXT,
+#     PRIMARY KEY (arxiv_id, reference_title)
 # );
-def write_paper_childs_to_db(
-    *, db_path: str, arxiv_id: str, child_arxiv_ids: list[str]
+def write_paper_all_reference_title_to_db(
+    *, db_path: str, arxiv_id: str, reference_titles: list[str]
 ): ...
 
 
@@ -107,11 +107,11 @@ def write_paper_childs_to_db(
 # read from sqlite databse table like
 # CREATE TABLE IF NOT EXISTS paper_references (
 #     arxiv_id TEXT,
-#     child_arxiv_id TEXT,
-#     PRIMARY KEY (arxiv_id, child_arxiv_id)
+#     reference_title TEXT,
+#     PRIMARY KEY (arxiv_id, reference_title)
 # );
 # if arxiv_id not exist return None else return list[str]
-def read_paper_childs_from_db(*, db_path: str, arxiv_id: str): ...
+def read_paper_all_reference_title_from_db(*, db_path: str, arxiv_id: str): ...
 
 
 visited_papers = {}
@@ -157,21 +157,21 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         write_arxiv_paper_summary_to_db(
             db_path=SQLITE_DIR, arxiv_id=arxiv_id, paper_summary=paper_summary
         )
-        write_paper_childs_to_db(
-            db_path=SQLITE_DIR, arxiv_id=arxiv_id, child_arxiv_ids=reference_list
+        write_paper_all_reference_title_to_db(
+            db_path=SQLITE_DIR, arxiv_id=arxiv_id, reference_titles=reference_list
         )
     else:
-        reference_list = read_paper_childs_from_db(
-            db_path=sys.argv[4], arxiv_id=arxiv_id
+        reference_list = read_paper_all_reference_title_from_db(
+            db_path=SQLITE_DIR, arxiv_id=arxiv_id
         )
 
     record_paper_summary(arxiv_id=arxiv_id, summary=paper_summary)
     record_paper_relationship(father_id=father_id, arxiv_id=arxiv_id)
 
-    dot_file = generate_graphviz_dot_file_str(
+    dot_text = generate_graphviz_dot_file_str(
         nodes=visited_papers, edges=paper_refs_relationship
     )
-    save_graphviz_dot_file(text=dot_file, path=sys.argv[3])
+    save_graphviz_dot_file(text=dot_text, path=DOTFILE_PATHNAME)
     pprint(f"save dot file - {arxiv_id} done.")
 
     for reference_title in reference_list:
