@@ -1,18 +1,21 @@
+import concurrent.futures
 import sys
+import threading
 
 from rich.pretty import pprint
 
 from textpy import AICompiler, code, text
 
 COMPILER_CACHE = "/cache/prompts"
-
-AICompiler.set_compiler(cache=COMPILER_CACHE)
-
 ARXIV_ID = sys.argv[1]
 ARXIV_PAPER_DIR = sys.argv[2]
 DOTFILE_PATHNAME = sys.argv[3]
 SQLITE_DIR = sys.argv[4]
 SEARCH_DEPTH = int(sys.argv[5])
+
+AICompiler.set_compiler(cache=COMPILER_CACHE)
+
+g_tp_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
 
 def get_arxiv_package_info() -> str:
@@ -114,21 +117,27 @@ def write_paper_all_reference_title_to_db(
 def read_paper_all_reference_title_from_db(*, db_path: str, arxiv_id: str): ...
 
 
+locker = threading.Lock()
 visited_papers = {}
 paper_refs_relationship = {}
 
 
 def record_paper_summary(arxiv_id: str, summary: str):
     global visited_papers
-    visited_papers[arxiv_id] = summary
+    global locker
+    with locker:
+        visited_papers[arxiv_id] = summary
 
 
 def record_paper_relationship(father_id: str, arxiv_id: str):
     global paper_refs_relationship
-    if father_id not in paper_refs_relationship:
-        paper_refs_relationship[father_id] = []
+    global locker
 
-    paper_refs_relationship[father_id].append(arxiv_id)
+    with locker:
+        if father_id not in paper_refs_relationship:
+            paper_refs_relationship[father_id] = []
+
+        paper_refs_relationship[father_id].append(arxiv_id)
 
 
 def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: int):
@@ -174,6 +183,8 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
     save_graphviz_dot_file(text=dot_text, path=DOTFILE_PATHNAME)
     pprint(f"save dot file - {arxiv_id} done.")
 
+    futures = []
+
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
             query='ti:"' + reference_title + '"', max_result=1
@@ -187,12 +198,20 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         if ref_paper_id in visited_papers:
             continue
 
-        deep_read_arxiv_paper(
-            father_id=arxiv_id,
-            arxiv_id=ref_paper_id,
-            dir_path=dir_path,
-            depth=depth + 1,
+        futures.append(
+            g_tp_executor.submit(
+                deep_read_arxiv_paper,
+                father_id=arxiv_id,
+                arxiv_id=ref_paper_id,
+                dir_path=dir_path,
+                depth=depth + 1,
+            )
         )
+    for future in concurrent.futures.as_completed(futures):
+        try:
+            result = future.result()
+        except Exception as e:
+            pass
 
 
 if __name__ == "__main__":
