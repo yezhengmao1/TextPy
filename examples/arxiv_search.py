@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Tuple
 
 from rich.logging import RichHandler
 from rich.pretty import pprint
@@ -30,7 +29,7 @@ def extract_text_from_pdf(*, dir: str, file_name: str) -> str: ...
 
 @code(cache="/cache")
 # ignore the case sensitivity of "references"
-def extract_text_before_and_after_references(*, text: str) -> Tuple[str, str]: ...
+def extract_text_before_and_after_references(*, text: str) -> tuple[str, str]: ...
 
 
 if __name__ == "__main__":
