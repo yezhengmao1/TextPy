@@ -94,13 +94,9 @@ class GetPypiPackageContextPass(CompilePass):
             return context
 
         # get the pypi info from the url
-        import requests
-
         context["pypi"] = ""
         for package in func.pypi_package_:
-            response = requests.get(package)
-            if response.status_code == 200:
-                context["pypi"] += "\n" + response.text + "\n"
+            context["pypi"] += "\n" + package + "\n"
 
         return context
 
