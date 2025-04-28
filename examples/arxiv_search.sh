@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -d ".cache" ]; then
+    mkdir .cache
+else
+
+cp ../textpy/compiler/prompts/_textpy_built_in_gen_* .cache/
+
 docker run \
     -v ./:/workspace \
     -v ./.cache:/cache \
