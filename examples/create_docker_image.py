@@ -24,16 +24,15 @@ if __name__ == "__main__":
 
     docker_file_str: str = ""
 
-    descriptions = [
-        "FROM python:3.12.10-bookworm",
-        f"copy the {project_path} to /textpy",
-        f"install the python package in the /textpy",
-    ]
+    description = (
+        "FROM python:3.12.10-bookworm"
+        + f"copy the {project_path} to /textpy"
+        + f"install the python package in the /textpy"
+    )
 
-    for desc in descriptions:
-        docker_file_str = add_new_command_to_docker_file(
-            docker_file_str=docker_file_str, new_command_description=desc
-        )
+    docker_file_str = add_new_command_to_docker_file(
+        docker_file_str=docker_file_str, new_command_description=description
+    )
 
     output = execute_the_docker_file_to_create_image(
         docker_file_str=docker_file_str, docker_image_name="textpy"
