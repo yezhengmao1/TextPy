@@ -1,6 +1,6 @@
 import sys
 
-from textpy import code
+from textpy import AICompiler, code
 
 
 @code
@@ -12,5 +12,7 @@ if __name__ == "__main__":
 
     url = sys.argv[1]
     path = sys.argv[2]
+
+    AICompiler.set_compiler(cache=path)
 
     download_pdf_from_arxiv(url=url, path=path)

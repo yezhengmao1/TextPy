@@ -27,4 +27,22 @@ class CodeFunc(BaseFunc):
 
             AICompiler.compile(self)
 
-        return super().__call__(**kwargs)
+        assert self.runtime_ is not None
+
+        execute_try_optimize = 0
+
+        while True:
+            try:
+                response = self.runtime_(self, **kwargs)
+                break
+            except Exception as e:
+                error_info = f"execute function error, error type {type(e)}: {str(e)}"
+                print(error_info)
+                # use the error_info to optimize the code
+                execute_try_optimize += 1
+                AICompiler.optimize(self, feedback=error_info)
+
+            if execute_try_optimize >= 5:
+                raise RuntimeError
+
+        return response

@@ -29,5 +29,8 @@ class PyEngine(BaseEngine):
         except TypeError:
             # got an unexpected keyword argument
             raise TypeError
+        except Exception as e:
+            print(f"py engine run error: {str(e)}")
+            raise
 
         return result

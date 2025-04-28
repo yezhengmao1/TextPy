@@ -31,7 +31,7 @@ class CodeVM(BaseVM):
         try:
             response = self.engine_.run(code, **kwargs)
         except Exception as e:
-            print(f"The error is {str(e)}")
+            raise
 
         # TODO: check the response
         # TODO: the response must same with the func's return value
