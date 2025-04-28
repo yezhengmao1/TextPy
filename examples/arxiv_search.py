@@ -3,6 +3,7 @@ import sys
 from typing import Tuple
 
 from rich.logging import RichHandler
+from rich.pretty import pprint
 
 from textpy import AICompiler, code, text
 
@@ -42,8 +43,8 @@ if __name__ == "__main__":
     download_pdf_from_arxiv(url=url, dir=path, file_name=file_name)
 
     text = extract_text_from_pdf(dir=path, file_name=file_name)
-    print(text)
+    pprint(text)
 
     before_ref, after_ref = extract_text_before_and_after_references(text=text)
-    print(before_ref)
-    print(after_ref)
+    pprint(before_ref)
+    pprint(after_ref)

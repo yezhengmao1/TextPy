@@ -36,8 +36,14 @@ class PyEngine(BaseEngine):
         :param kwargs: the function's input argument
         """
         namespace = {}
+        globals_env = globals()
 
-        exec(code, globals(), namespace)
+        # import the package for exec enviroment
+        import typing
+
+        globals_env["typing"] = typing
+
+        exec(code, globals_env, namespace)
 
         # must ensure the code only have one function
         if len(namespace.keys()) != 1:
