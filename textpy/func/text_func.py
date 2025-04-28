@@ -1,7 +1,10 @@
 import json
+import logging
 from typing import Callable, Optional
 
 from .func import BaseFunc
+
+logger = logging.getLogger("TextFunc")
 
 
 class TextFunc(BaseFunc):

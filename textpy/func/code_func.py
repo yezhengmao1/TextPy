@@ -1,6 +1,9 @@
+import logging
 from typing import Optional
 
 from .func import BaseFunc
+
+logger = logging.getLogger("CodeFunc")
 
 
 class CodeFunc(BaseFunc):
@@ -37,7 +40,13 @@ class CodeFunc(BaseFunc):
                 break
             except Exception as e:
                 error_info = f"execute function error, error type {type(e)}: {str(e)}"
-                print(error_info)
+
+                logger.info(
+                    "code func execute error\n"
+                    + f"the code is:\n{self.code_}\n"
+                    + f"the error information:\n{error_info}\n"
+                )
+
                 # use the error_info to optimize the code
                 execute_try_optimize += 1
                 AICompiler.optimize(self, feedback=error_info)

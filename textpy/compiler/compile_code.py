@@ -30,6 +30,14 @@ def _textpy_built_in_extract_function_source_from_text(
 def _textpy_built_in_gen_code_func(*, fn_name: str, context: str) -> str: ...
 
 
+@text(
+    cache=_textpy_prompt_cache_dir,
+    constant=True,
+)
+# move all import command into the function
+def _textpy_built_in_move_the_import_command_into_func(*, fn_source: str) -> str: ...
+
+
 class LoadCodeFuncFromCachePass(CompilePass):
     def __call__(self, func: CodeFunc, **context):
         """
@@ -81,15 +89,35 @@ class GenCodeFuncCodePass(CompilePass):
         """
         generate the code for codefunc
         """
-        text = _textpy_built_in_gen_code_func(
+        context["code"] = _textpy_built_in_gen_code_func(
             fn_name=func.fn_name_,
             context=context["func_context"],
         )
+
+        return context
+
+
+class AdjustImportInFuncCodePass(CompilePass):
+    def __call__(self, func: CodeFunc, **context):
+        """
+        relocates module import statements from the module-level scope into function bodies
+        """
+        context["code"] = _textpy_built_in_move_the_import_command_into_func(
+            fn_source=context["code"]
+        )
+        return context
+
+
+class ExtractFuncFromTextPass(CompilePass):
+    def __call__(self, func: CodeFunc, **context):
+        """
+        extract the function from the text
+        """
         import json
 
         func.code_ = json.loads(
             _textpy_built_in_extract_function_source_from_text(
-                text=text, func_name=func.fn_name_
+                text=context["code"], func_name=func.fn_name_
             )
         )["return"]
 
@@ -104,6 +132,8 @@ class CompileCodeFuncPass(CompilePass):
             LoadCodeFuncFromCachePass(),
             GetFuncContextPass(),
             GenCodeFuncCodePass(),
+            AdjustImportInFuncCodePass(),
+            ExtractFuncFromTextPass(),
             SaveCodeFuncToCachePass(),
         ]
 
