@@ -27,7 +27,7 @@ def _textpy_built_in_extract_function_source_from_text(
     cache=_textpy_prompt_cache_dir,
     constant=True,
 )
-def _textpy_built_in_gen_code_func(*, fn_name: str, context: str) -> str: ...
+def _textpy_built_in_gen_code_func(*, fn_name: str, context: str, pypi: str) -> str: ...
 
 
 @text(
@@ -84,6 +84,27 @@ class SaveCodeFuncToCachePass(CompilePass):
         return context
 
 
+class GetPypiPackageContextPass(CompilePass):
+    def __call__(self, func: CodeFunc, **context):
+        """
+        Collect the tool's information for the func
+        """
+        if func.pypi_package_ is None or len(func.pypi_package_) == 0:
+            context["pypi"] = ""
+            return context
+
+        # get the pypi info from the url
+        import requests
+
+        context["pypi"] = ""
+        for package in func.pypi_package_:
+            response = requests.get(package)
+            if response.status_code == 200:
+                context["pypi"] += "\n" + response.text + "\n"
+
+        return context
+
+
 class GenCodeFuncCodePass(CompilePass):
     def __call__(self, func: CodeFunc, **context):
         """
@@ -92,6 +113,7 @@ class GenCodeFuncCodePass(CompilePass):
         context["code"] = _textpy_built_in_gen_code_func(
             fn_name=func.fn_name_,
             context=context["func_context"],
+            pypi=context["pypi"],
         )
 
         return context
@@ -131,6 +153,7 @@ class CompileCodeFuncPass(CompilePass):
             CompileContextInitPass(),
             LoadCodeFuncFromCachePass(),
             GetFuncContextPass(),
+            GetPypiPackageContextPass(),
             GenCodeFuncCodePass(),
             AdjustImportInFuncCodePass(),
             ExtractFuncFromTextPass(),

@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from .func import BaseFunc
 
@@ -8,17 +8,20 @@ logger = logging.getLogger("CodeFunc")
 
 class CodeFunc(BaseFunc):
     code_: Optional[str]
+    pypi_package_: Optional[List[str]]
 
     def __init__(
         self,
         fn: callable,
         *,
         code: Optional[str] = None,
+        pypi_package: Optional[List[str]] = None,
         **kwargs,
     ):
         super().__init__(fn, **kwargs)
 
         self.code_ = code
+        self.pypi_package_ = pypi_package
 
     def code(self) -> str:
         return self.code_

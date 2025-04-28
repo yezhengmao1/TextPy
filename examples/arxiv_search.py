@@ -18,8 +18,13 @@ for mo in logger_module:
 def extract_id_from_url_for_filename(*, url: str) -> str: ...
 
 
-@code(cache="/cache")
-def download_pdf_from_arxiv(*, url: str, dir: str, file_name: str): ...
+@code(
+    cache="/cache",
+    pypi_package=[
+        "https://raw.githubusercontent.com/lukasschwab/arxiv.py/refs/heads/master/README.md",
+    ],
+)
+def download_pdf_from_arxiv(*, id: str, dir: str, file_name: str): ...
 
 
 @code(cache="/cache")
@@ -32,18 +37,26 @@ def extract_text_from_pdf(*, dir: str, file_name: str) -> str: ...
 def extract_text_before_and_after_references(*, text: str) -> tuple[str, str]: ...
 
 
+@text(cache="/cache")
+def extract_reference_list_from_references_section(*, text: str) -> list[str]: ...
+
+
 if __name__ == "__main__":
     assert len(sys.argv) >= 3
 
-    url = sys.argv[1]
+    arxiv_id = sys.argv[1]
     path = sys.argv[2]
 
-    file_name = extract_id_from_url_for_filename(url=url)
-    download_pdf_from_arxiv(url=url, dir=path, file_name=file_name)
+    download_pdf_from_arxiv(id=arxiv_id, dir=path, file_name=arxiv_id)
 
-    text = extract_text_from_pdf(dir=path, file_name=file_name)
+    text = extract_text_from_pdf(dir=path, file_name=arxiv_id)
+
     pprint(text)
 
     before_ref, after_ref = extract_text_before_and_after_references(text=text)
+
+    reference_list = extract_reference_list_from_references_section(text=after_ref)
+
     pprint(before_ref)
-    pprint(after_ref)
+
+    pprint(reference_list)
