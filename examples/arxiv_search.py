@@ -195,4 +195,5 @@ if __name__ == "__main__":
         father_id="root", arxiv_id=ARXIV_ID, dir_path=ARXIV_PAPER_DIR, depth=0
     )
 
-    g_tp_executor.shutdown(wait=True)
+    keep_running = threading.Event()
+    keep_running.wait()
