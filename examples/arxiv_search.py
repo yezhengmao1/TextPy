@@ -5,6 +5,8 @@ import threading
 
 from textpy import AICompiler, code, text
 
+logger = logging.getLogger("ArxivSearch")
+
 ARXIV_ID = sys.argv[1]
 CACHE_DIR = sys.argv[2]
 SEARCH_DEPTH = int(sys.argv[3])
@@ -164,20 +166,20 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
     if paper_summary is None:
         paper_title = search_this_arxiv_id_title(id=arxiv_id)
-        print(f"get paper title - {arxiv_id} done.")
+        logger.info(f"get paper title {arxiv_id} done: {paper_title}")
 
         download_pdf_from_arxiv(id=arxiv_id, dir=dir_path, file_name=arxiv_id)
-        print(f"download pdf - {arxiv_id} done.")
+        logger.info(f"download pdf - {arxiv_id} done.")
 
         text = extract_text_from_pdf(dir=dir_path, file_name=arxiv_id)
         before_ref, after_ref = extract_text_before_and_after_references(text=text)
-        print(f"extract text from pdf - {arxiv_id} done.")
+        logging.info(f"extract text from pdf - {arxiv_id} done.")
 
         paper_summary = summary_the_paper_by_sections(text=before_ref)
-        print(f"summary text {arxiv_id} done.")
+        logging.info(f"summary text {arxiv_id} done.")
 
         reference_list = extract_reference_list_from_references_section(text=after_ref)
-        print(f"get references from {arxiv_id} done.")
+        logging.info(f"get references from {arxiv_id} done.")
 
         write_arxiv_paper_summary_to_db(
             db_path=SQLITE_DIR,
@@ -202,7 +204,7 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         nodes=visited_papers, edges=paper_refs_relationship
     )
     save_html_file(text=html_text, path=HTML_PATHNAME)
-    print(f"save html file - {arxiv_id} done.")
+    logging.info(f"save html file - {arxiv_id} done.")
 
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
@@ -229,7 +231,7 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 if __name__ == "__main__":
     assert len(sys.argv) >= 3
 
-    for logger_name in ["CodeFunc", "TextFunc"]:
+    for logger_name in ["CodeFunc", "TextFunc", "ArxivSearch"]:
         logger = logging.getLogger(logger_name)
         logger.setLevel(logging.INFO)
 
