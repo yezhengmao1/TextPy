@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <img alt="TextPy" src="https://github.com/yezhengmao1/TextPy/tree/main/docs/logos/TextPy.png" width=55%>
+    <img alt="TextPy" src="https://github.com/yezhengmao1/TextPy/tree/main/docs/logo/TextPy.png" width=55%>
   </picture>
 </p>
 
