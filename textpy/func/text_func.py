@@ -66,7 +66,9 @@ class TextFunc(BaseFunc):
         if self.prompt_ is None:
             from ..compiler import AICompiler
 
+            logger.info(f"compile TextFunc <{self.fn_name_}> .....")
             AICompiler.compile(self)
+            logger.info(f"compile TextFunc <{self.fn_name_}> done!")
 
         assert self.runtime_ is not None
 

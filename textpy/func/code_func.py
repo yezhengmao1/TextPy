@@ -31,7 +31,9 @@ class CodeFunc(BaseFunc):
         if self.code_ is None:
             from ..compiler import AICompiler
 
+            logger.info(f"compile CodeFunc <{self.fn_name_}> .....")
             AICompiler.compile(self)
+            logger.info(f"compile CodeFunc <{self.fn_name_}> done!")
 
         assert self.runtime_ is not None
 
@@ -52,7 +54,10 @@ class CodeFunc(BaseFunc):
 
                 # use the error_info to optimize the code
                 execute_try_optimize += 1
+
+                logger.info(f"optimize CodeFunc <{self.fn_name_}> .....")
                 AICompiler.optimize(self, feedback=error_info)
+                logger.info(f"optimize CodeFunc <{self.fn_name_}> done!")
 
             if execute_try_optimize >= 5:
                 raise RuntimeError

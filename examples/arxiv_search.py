@@ -1,4 +1,5 @@
 import concurrent.futures
+import logging
 import sys
 import threading
 
@@ -227,6 +228,17 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
 if __name__ == "__main__":
     assert len(sys.argv) >= 3
+
+    for logger_name in ["CodeFunc", "TextFunc"]:
+        logger = logging.getLogger(logger_name)
+        logger.setLevel(logging.INFO)
+
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter("[%(asctime)s][%(levelname)s][%(name)s]: %(message)s")
+        )
+
+        logger.addHandler(handler)
 
     record_paper_title_and_summary(arxiv_id="root", title="root", summary="root")
     deep_read_arxiv_paper(
