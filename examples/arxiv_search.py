@@ -2,8 +2,6 @@ import concurrent.futures
 import sys
 import threading
 
-from rich.pretty import pprint
-
 from textpy import AICompiler, code, text
 
 ARXIV_ID = sys.argv[1]
@@ -41,6 +39,11 @@ def extract_id_from_arxiv_entry_id(*, url: str) -> str: ...
 def download_pdf_from_arxiv(*, id: str, dir: str, file_name: str): ...
 
 
+@code(cache=COMPILER_CACHE, pypi_package=[get_arxiv_package_info()])
+# return only one title for this paper, if do not exist return None
+def search_this_arxiv_id_title(*, id: str): ...
+
+
 @code(cache=COMPILER_CACHE)
 # use ocrmypdf and PyPDF2 to extract text
 def extract_text_from_pdf(*, dir: str, file_name: str) -> str: ...
@@ -65,10 +68,10 @@ def summary_the_paper_by_sections(*, text: str) -> str: ...
 
 
 @code(cache=COMPILER_CACHE)
-# nodes is dict, include all arxiv_id and summary
-# edges is dict, father arxiv_id -> child arxiv_id
-# generate the graph structure, each node include title(arxiv_id) and summary
-# do not omit the summary, and render the summary, which is markdown format
+# nodes is dict, key is arxiv_id, value is {"title": "..", "summary": "..."}
+# edges is dict, key is arxiv_id, value is child arxiv_ids(list)
+# generate the graph structure, each node include title and summary(markdown format)
+# do not omit the summary, correct render the markdown format text
 # also the summary in the html can be collapsed
 def generate_html_from_graph_structure(*, nodes: dict, edges: dict) -> str: ...
 
@@ -81,10 +84,11 @@ def save_html_file(*, text: str, path: str): ...
 # write the sqlite database, table like
 # CREATE TABLE IF NOT EXISTS papers (
 #     arxiv_id TEXT PRIMARY KEY,
+#     title TEXT,
 #     summary TEXT
 # );
 def write_arxiv_paper_summary_to_db(
-    *, db_path: str, arxiv_id: str, paper_summary: str
+    *, db_path: str, arxiv_id: str, title: str, paper_summary: str
 ): ...
 
 
@@ -92,10 +96,12 @@ def write_arxiv_paper_summary_to_db(
 # read from sqlite database table like
 # CREATE TABLE IF NOT EXISTS papers (
 #     arxiv_id TEXT PRIMARY KEY,
+#     title TEXT,
 #     summary TEXT
 # );
-# if arxiv_id not exist return None else return str
-def read_arxiv_paper_summary(*, db_path: str, arxiv_id: str): ...
+# if arxiv_id not exist return None,None
+# else return title(str), summary(str)
+def read_arxiv_paper_title_and_summary(*, db_path: str, arxiv_id: str): ...
 
 
 @code(cache=COMPILER_CACHE)
@@ -126,11 +132,11 @@ visited_papers = {}
 paper_refs_relationship = {}
 
 
-def record_paper_summary(arxiv_id: str, summary: str):
+def record_paper_title_and_summary(arxiv_id: str, title: str, summary: str):
     global visited_papers
     global locker
     with locker:
-        visited_papers[arxiv_id] = summary
+        visited_papers[arxiv_id] = {"title": title, "summary": summary}
 
 
 def record_paper_relationship(father_id: str, arxiv_id: str):
@@ -151,24 +157,32 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
     if depth >= SEARCH_DEPTH:
         return
 
-    paper_summary = read_arxiv_paper_summary(db_path=SQLITE_DIR, arxiv_id=arxiv_id)
+    paper_title, paper_summary = read_arxiv_paper_title_and_summary(
+        db_path=SQLITE_DIR, arxiv_id=arxiv_id
+    )
 
     if paper_summary is None:
+        paper_title = search_this_arxiv_id_title(id=arxiv_id)
+        print(f"get paper title - {arxiv_id} done.")
+
         download_pdf_from_arxiv(id=arxiv_id, dir=dir_path, file_name=arxiv_id)
-        pprint(f"download pdf - {arxiv_id} done.")
+        print(f"download pdf - {arxiv_id} done.")
 
         text = extract_text_from_pdf(dir=dir_path, file_name=arxiv_id)
         before_ref, after_ref = extract_text_before_and_after_references(text=text)
-        pprint(f"extract text from pdf - {arxiv_id} done.")
+        print(f"extract text from pdf - {arxiv_id} done.")
 
         paper_summary = summary_the_paper_by_sections(text=before_ref)
-        pprint(f"summary text {arxiv_id} done.")
+        print(f"summary text {arxiv_id} done.")
 
         reference_list = extract_reference_list_from_references_section(text=after_ref)
-        pprint(f"get references from {arxiv_id} done.")
+        print(f"get references from {arxiv_id} done.")
 
         write_arxiv_paper_summary_to_db(
-            db_path=SQLITE_DIR, arxiv_id=arxiv_id, paper_summary=paper_summary
+            db_path=SQLITE_DIR,
+            arxiv_id=arxiv_id,
+            title=paper_title,
+            paper_summary=paper_summary,
         )
         write_paper_all_reference_title_to_db(
             db_path=SQLITE_DIR, arxiv_id=arxiv_id, reference_titles=reference_list
@@ -178,14 +192,16 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
             db_path=SQLITE_DIR, arxiv_id=arxiv_id
         )
 
-    record_paper_summary(arxiv_id=arxiv_id, summary=paper_summary)
+    record_paper_title_and_summary(
+        arxiv_id=arxiv_id, paper_title=paper_title, summary=paper_summary
+    )
     record_paper_relationship(father_id=father_id, arxiv_id=arxiv_id)
 
     html_text = generate_html_from_graph_structure(
         nodes=visited_papers, edges=paper_refs_relationship
     )
     save_html_file(text=html_text, path=HTML_PATHNAME)
-    pprint(f"save html file - {arxiv_id} done.")
+    print(f"save html file - {arxiv_id} done.")
 
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
@@ -211,8 +227,10 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
 if __name__ == "__main__":
     assert len(sys.argv) >= 3
-    record_paper_summary(arxiv_id="----", summary="----")
+
+    record_paper_title_and_summary(arxiv_id="root", title="root", summary="root")
     deep_read_arxiv_paper(
-        father_id="----", arxiv_id=ARXIV_ID, dir_path=ARXIV_PAPER_DIR, depth=0
+        father_id="root", arxiv_id=ARXIV_ID, dir_path=ARXIV_PAPER_DIR, depth=0
     )
+
     g_tp_executor.shutdown(wait=True)

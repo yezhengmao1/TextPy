@@ -17,6 +17,7 @@ if [[ ! -e ".cache/store.db3" ]]; then
     sqlite3 .cache/store.db3 <<EOF
 CREATE TABLE IF NOT EXISTS papers (
     arxiv_id TEXT PRIMARY KEY,
+    title TEXT,
     summary TEXT
 );
 
