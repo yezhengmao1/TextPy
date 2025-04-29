@@ -1,7 +1,7 @@
 [project]
-name = "textpy"
+name = "textpy_llm"
 version = "0.1.0"
-description = "Add your description here"
+description = "Agentic Ability in One Line"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

@@ -806,7 +806,7 @@ wheels = [
 ]
 
 [[package]]
-name = "textpy"
+name = "textpy-llm"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

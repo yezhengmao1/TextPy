@@ -33,10 +33,12 @@ fi
 
 cp ../textpy/compiler/prompts/_textpy_built_in_gen_* .cache/prompts
 
+docker pull ghcr.io/yezhengmao1/textpy:latest
+
 docker run \
     -v ./:/workspace \
     -v ./.cache:/cache \
     -w /workspace \
     -e DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY} \
-    textpy \
+    ghcr.io/yezhengmao1/textpy:latest \
     python arxiv_search.py ${ARXIV_ID} /cache 3
