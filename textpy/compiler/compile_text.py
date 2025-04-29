@@ -12,6 +12,18 @@ from .compile_pass import (
 )
 
 
+@text(
+    cache=_textpy_prompt_cache_dir,
+    response_format="json_object",
+    constant=True,
+)
+# return json_object, like {"return":""}
+# without any markdown label
+def _textpy_built_in_extract_function_return_value_from_text(
+    *, text: str, func_source: str
+) -> str: ...
+
+
 @text(cache=_textpy_prompt_cache_dir, constant=True)
 def _textpy_built_in_gen_text_func(*, fn_name: str, context: str) -> str: ...
 
@@ -74,6 +86,28 @@ class GenTextFuncPromptPass(CompilePass):
         return context
 
 
+class SetBuiltInExtractReturnFuncPass(CompilePass):
+    def __call__(self, func: TextFunc, **context):
+        """
+        set built in extract return function
+        """
+
+        def extract_return_func(response: str):
+            import json
+
+            # recurse call the extract function
+            response = _textpy_built_in_extract_function_return_value_from_text(
+                text=response, func_source=func.fn_source_
+            )
+
+            response_obj = json.loads(response)
+
+            return response_obj["return"]
+
+        func.built_in_extract_return_func_ = extract_return_func
+        return context
+
+
 class CompileTextFuncPass(CompilePass):
     def __call__(self, func: TextFunc, **context):
 
@@ -82,6 +116,7 @@ class CompileTextFuncPass(CompilePass):
             LoadTextFuncFromCachePass(),
             GetFuncContextPass(),
             GenTextFuncPromptPass(),
+            SetBuiltInExtractReturnFuncPass(),
             SaveTextFuncToCachePass(),
         ]
 
