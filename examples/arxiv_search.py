@@ -193,7 +193,7 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         )
 
     record_paper_title_and_summary(
-        arxiv_id=arxiv_id, paper_title=paper_title, summary=paper_summary
+        arxiv_id=arxiv_id, title=paper_title, summary=paper_summary
     )
     record_paper_relationship(father_id=father_id, arxiv_id=arxiv_id)
 
