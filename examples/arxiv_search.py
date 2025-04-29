@@ -126,17 +126,17 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
     text = extract_text_from_pdf(dir=dir_path, file_name=arxiv_id)
     before_ref, after_ref = extract_text_before_and_after_references(text=text)
-    logging.info(f"extract text from pdf - {arxiv_id} done.")
+    logger.info(f"extract text from pdf - {arxiv_id} done.")
 
     paper_summary = summary_the_paper_by_sections(text=before_ref)
-    logging.info(f"summary text {arxiv_id} done: {paper_summary[:70]}")
+    logger.info(f"summary text {arxiv_id} done: {paper_summary[:70]}")
 
     record_paper_title_and_summary(
         arxiv_id=arxiv_id, title=paper_title, summary=paper_summary
     )
 
     reference_list = extract_reference_list_from_references_section(text=after_ref)
-    logging.info(f"get references from {arxiv_id} done.")
+    logger.info(f"get references from {arxiv_id} done.")
 
     record_paper_relationship(father_id=father_id, arxiv_id=arxiv_id)
 
@@ -144,9 +144,10 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         nodes=visited_papers, edges=paper_refs_relationship
     )
     save_html_file(text=html_text, path=HTML_PATHNAME)
-    logging.info(f"save html file - {arxiv_id} done.")
+    logger.info(f"save html file - {arxiv_id} done.")
 
     for reference_title in reference_list:
+        logger.info(f"search paper - {reference_title}.")
         result = search_arxiv_paper_from_query(
             query='ti:"' + reference_title + '"', max_result=1
         )
@@ -155,6 +156,10 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
         ref_paper = result[0]
         ref_paper_id = extract_id_from_arxiv_entry_id(url=ref_paper["entry_id"])
+
+        logger.info(
+            f"search paper - {reference_title} done entry id: {ref_paper["entry_id"]}."
+        )
 
         if ref_paper_id in visited_papers:
             continue
