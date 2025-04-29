@@ -12,7 +12,6 @@ SEARCH_DEPTH = int(sys.argv[3])
 
 ARXIV_PAPER_DIR = CACHE_DIR + "/arxiv"
 COMPILER_CACHE = CACHE_DIR + "/prompts"
-DOTFILE_PATHNAME = CACHE_DIR + "/dotfile.dot"
 HTML_PATHNAME = CACHE_DIR + "/arxiv.html"
 SQLITE_DIR = CACHE_DIR + "/store.db3"
 
@@ -68,17 +67,9 @@ def summary_the_paper_by_sections(*, text: str) -> str: ...
 @code(cache=COMPILER_CACHE)
 # nodes is dict, include all arxiv_id and summary
 # edges is dict, father arxiv_id -> child arxiv_id
-# node shape is box, do not omit anything
-def generate_graphviz_dot_file_str(*, nodes: dict, edges: dict) -> str: ...
-
-
-@code(cache=COMPILER_CACHE)
-def save_graphviz_dot_file(*, text: str, path: str): ...
-
-
-@code(cache=COMPILER_CACHE)
-# generate html file from graphvize, collapse the label in the node
-def generate_html_from_graphviz_dot_file_str(*, text: str) -> str: ...
+# the title is arxiv
+# do not omit the summary, and the summary is markdown text, and it can be collapsed
+def generate_html_from_graph_structure(*, nodes: dict, edges: dict) -> str: ...
 
 
 @code(cache=COMPILER_CACHE)
@@ -189,14 +180,11 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
     record_paper_summary(arxiv_id=arxiv_id, summary=paper_summary)
     record_paper_relationship(father_id=father_id, arxiv_id=arxiv_id)
 
-    dot_text = generate_graphviz_dot_file_str(
+    html_text = generate_html_from_graph_structure(
         nodes=visited_papers, edges=paper_refs_relationship
     )
-    save_graphviz_dot_file(text=dot_text, path=DOTFILE_PATHNAME)
-    pprint(f"save dot file - {arxiv_id} done.")
-
-    html_text = generate_html_from_graphviz_dot_file_str(text=dot_text)
     save_html_file(text=html_text, path=HTML_PATHNAME)
+    pprint(f"save html file - {arxiv_id} done.")
 
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
