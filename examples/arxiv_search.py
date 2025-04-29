@@ -6,12 +6,15 @@ from rich.pretty import pprint
 
 from textpy import AICompiler, code, text
 
-COMPILER_CACHE = "/cache/prompts"
 ARXIV_ID = sys.argv[1]
-ARXIV_PAPER_DIR = sys.argv[2]
-DOTFILE_PATHNAME = sys.argv[3]
-SQLITE_DIR = sys.argv[4]
-SEARCH_DEPTH = int(sys.argv[5])
+CACHE_DIR = sys.argv[2]
+SEARCH_DEPTH = int(sys.argv[3])
+
+ARXIV_PAPER_DIR = CACHE_DIR + "/arxiv"
+COMPILER_CACHE = CACHE_DIR + "/prompts"
+DOTFILE_PATHNAME = CACHE_DIR + "/dotfile.dot"
+HTML_PATHNAME = CACHE_DIR + "/arxiv.html"
+SQLITE_DIR = CACHE_DIR + "/store.db3"
 
 AICompiler.set_compiler(cache=COMPILER_CACHE)
 
@@ -71,6 +74,15 @@ def generate_graphviz_dot_file_str(*, nodes: dict, edges: dict) -> str: ...
 
 @code(cache=COMPILER_CACHE)
 def save_graphviz_dot_file(*, text: str, path: str): ...
+
+
+@code(cache=COMPILER_CACHE)
+# generate html file from graphvize, collapse the label in the node
+def generate_html_from_graphviz_dot_file_str(*, text: str) -> str: ...
+
+
+@code(cache=COMPILER_CACHE)
+def save_html_file(*, text: str, path: str): ...
 
 
 @code(cache=COMPILER_CACHE)
@@ -183,6 +195,9 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
     save_graphviz_dot_file(text=dot_text, path=DOTFILE_PATHNAME)
     pprint(f"save dot file - {arxiv_id} done.")
 
+    html_text = generate_html_from_graphviz_dot_file_str(text=dot_text)
+    save_html_file(text=html_text, path=HTML_PATHNAME)
+
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
             query='ti:"' + reference_title + '"', max_result=1
@@ -206,7 +221,7 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
 
 
 if __name__ == "__main__":
-    assert len(sys.argv) >= 6
+    assert len(sys.argv) >= 3
     record_paper_summary(arxiv_id="----", summary="----")
     deep_read_arxiv_paper(
         father_id="----", arxiv_id=ARXIV_ID, dir_path=ARXIV_PAPER_DIR, depth=0

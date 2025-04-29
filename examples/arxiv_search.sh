@@ -38,4 +38,4 @@ docker run \
     -w /workspace \
     -e DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY} \
     textpy \
-    python arxiv_search.py ${ARXIV_ID} /cache/arxiv/ /cache/dotfile.dot /cache/store.db3 2
+    python arxiv_search.py ${ARXIV_ID} /cache 2
