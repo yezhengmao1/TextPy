@@ -67,8 +67,9 @@ def summary_the_paper_by_sections(*, text: str) -> str: ...
 @code(cache=COMPILER_CACHE)
 # nodes is dict, include all arxiv_id and summary
 # edges is dict, father arxiv_id -> child arxiv_id
-# the title is arxiv
-# do not omit the summary, and the summary is markdown text, and it can be collapsed
+# generate the graph structure, each node include title(arxiv_id) and summary
+# do not omit the summary, and render the summary, which is markdown format
+# also the summary in the html can be collapsed
 def generate_html_from_graph_structure(*, nodes: dict, edges: dict) -> str: ...
 
 
