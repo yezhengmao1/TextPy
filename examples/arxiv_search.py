@@ -15,7 +15,7 @@ SEARCH_DEPTH = int(sys.argv[5])
 
 AICompiler.set_compiler(cache=COMPILER_CACHE)
 
-g_tp_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
+g_tp_executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
 
 def get_arxiv_package_info() -> str:
@@ -183,8 +183,6 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
     save_graphviz_dot_file(text=dot_text, path=DOTFILE_PATHNAME)
     pprint(f"save dot file - {arxiv_id} done.")
 
-    futures = []
-
     for reference_title in reference_list:
         result = search_arxiv_paper_from_query(
             query='ti:"' + reference_title + '"', max_result=1
@@ -198,20 +196,13 @@ def deep_read_arxiv_paper(father_id: str, arxiv_id: str, dir_path: str, depth: i
         if ref_paper_id in visited_papers:
             continue
 
-        futures.append(
-            g_tp_executor.submit(
-                deep_read_arxiv_paper,
-                father_id=arxiv_id,
-                arxiv_id=ref_paper_id,
-                dir_path=dir_path,
-                depth=depth + 1,
-            )
+        g_tp_executor.submit(
+            deep_read_arxiv_paper,
+            father_id=arxiv_id,
+            arxiv_id=ref_paper_id,
+            dir_path=dir_path,
+            depth=depth + 1,
         )
-    for future in concurrent.futures.as_completed(futures):
-        try:
-            result = future.result()
-        except Exception as e:
-            pass
 
 
 if __name__ == "__main__":
@@ -220,3 +211,4 @@ if __name__ == "__main__":
     deep_read_arxiv_paper(
         father_id="----", arxiv_id=ARXIV_ID, dir_path=ARXIV_PAPER_DIR, depth=0
     )
+    g_tp_executor.shutdown(wait=True)
