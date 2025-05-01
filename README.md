@@ -61,6 +61,37 @@ svg = create_svg_from_text_with_svgwrite(text=poem)
 save_svg_to_file(svg=svg, path="poem.svg")
 ```
 
+### 👾 Quick Start - Amazing Example
+
+**Example**: Daily updates from arxiv via RSS link, filter the paper, translate the abstracts into Chinese, store them in a database, and generate a markdown file to display these contents.
+
+😊: I also use **TextPy** to periodically push the generated markdown files (if there are new ones) to my blog.
+
+Visit this in: [Daily Arxiv](https://yezhem.com/docs/Daily%20Arxiv/)
+
+**Highlight**: We only need to define the function and use it. The powerful `AICompiler` will recognize its functionality and automatically generate code for it and execute it, or generate a prompt for it and invoke a large language model. 
+
+see `examples/daily_arxiv.py` for details.
+
+```python
+@code
+def get_the_rss_xml_file_str(*, url: str) -> str: ...
+
+@code(pypi=[get_the_rss_xml_file_str(url=ARXIV_URL)])
+def get_all_item_in_the_rss_file(*, xml_file_str: str) -> list[dict]: ...
+
+@text
+def check_topic_is_satisfactory(*, abstrct: str, topic: str) -> bool: ...
+
+@text
+def translate_the_en_abstract_to_zh(*, abstract: str) -> str: ...
+
+@code
+def check_link_in_db(*, db_path: str, link: str) -> bool: ...
+
+@code
+def save_article_to_db(*, db_path: str, item: dict): ...
+```
 
 ### 🤩 Quick Start - Awesome Example
 

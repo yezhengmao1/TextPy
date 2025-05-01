@@ -1,3 +1,5 @@
+import threading
+import time
 from typing import Callable, Dict, List, Optional
 
 from ..func import CodeFunc, Func, TextFunc
@@ -54,14 +56,59 @@ class AICompiler:
             for lm_func in lm_funcs:
                 lm_func.cache_ = cache
 
+    compile_lock = threading.Lock()
+    compiling_funcs = set()
+
+    optimize_lock = threading.Lock()
+    optimizing_funcs = set()
+
     @staticmethod
     def compile(func: Func, **context):
         if type(func) not in AICompiler.compile_funcs:
             raise NotImplementedError
-        AICompiler.compile_funcs[type(func)](func, **context)
+
+        # only compile one function if the funcion need to be cached
+        if func.cache_ is None:
+            return AICompiler.compile_funcs[type(func)](func, **context)
+
+        AICompiler.compile_lock.acquire_lock()
+
+        check_compiling = func.fn_name_ in AICompiler.compiling_funcs
+
+        if check_compiling:
+            AICompiler.compile_lock.release()
+            while check_compiling:
+                check_compiling = func.fn_name_ in AICompiler.compiling_funcs
+                # it's ok do not acquire the lock
+                time.sleep(0.1)
+        else:
+            AICompiler.compiling_funcs.add(func.fn_name_)
+            AICompiler.compile_lock.release()
+
+            AICompiler.compile_funcs[type(func)](func, **context)
+            AICompiler.compiling_funcs.remove(func.fn_name_)
 
     @staticmethod
     def optimize(func: Func, **context):
         if type(func) not in AICompiler.optimize_funcs:
             raise NotImplementedError
-        AICompiler.optimize_funcs[type(func)](func, **context)
+
+        if func.cache_ is None:
+            AICompiler.optimize_funcs[type(func)](func, **context)
+
+        AICompiler.optimize_lock.acquire_lock()
+
+        check_optimizing = func.fn_name_ in AICompiler.optimizing_funcs
+
+        if check_optimizing:
+            AICompiler.optimize_lock.release()
+            while check_optimizing:
+                check_optimizing = func.fn_name_ in AICompiler.optimizing_funcs
+                # it's ok do not acquire the lock
+                time.sleep(0.1)
+        else:
+            AICompiler.optimizing_funcs.add(func.fn_name_)
+            AICompiler.optimize_lock.release()
+
+            AICompiler.optimize_funcs[type(func)](func, **context)
+            AICompiler.optimizing_funcs.remove(func.fn_name_)

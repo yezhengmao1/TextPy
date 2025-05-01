@@ -17,8 +17,8 @@ from .compile_pass import (
     response_format="json_object",
     constant=True,
 )
-# return json_object, like {"return":""}
-# without any markdown label
+# return json_object, like {"return": <value> }
+# the value type is the same as the return type of the function in the func_source
 def _textpy_built_in_extract_function_return_value_from_text(
     *, text: str, func_source: str
 ) -> str: ...
@@ -113,10 +113,10 @@ class CompileTextFuncPass(CompilePass):
 
         compile_text_func_pass: List[CompilePass] = [
             CompileContextInitPass(),
+            SetBuiltInExtractReturnFuncPass(),
             LoadTextFuncFromCachePass(),
             GetFuncContextPass(),
             GenTextFuncPromptPass(),
-            SetBuiltInExtractReturnFuncPass(),
             SaveTextFuncToCachePass(),
         ]
 
