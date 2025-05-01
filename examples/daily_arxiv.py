@@ -105,7 +105,9 @@ def daily_arxiv():
             except Exception as e:
                 logger.error(f"error processing item: {e}")
 
-    write_to_markdown_file(file_path=MD_PATH, items=item_results)
+    if len(item_results) > 0:
+        logger.info(f"write {len(item_results)} items to markdown file.")
+        write_to_markdown_file(file_path=MD_PATH, items=item_results)
 
 
 if __name__ == "__main__":
