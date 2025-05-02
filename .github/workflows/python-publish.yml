@@ -2,8 +2,8 @@ name: publish python package
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
