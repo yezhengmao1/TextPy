@@ -36,6 +36,14 @@ Or use our Docker image:
 $ docker pull ghcr.io/yezhengmao1/textpy:latest
 ```
 
+### 🧠 How to Work
+
+![overview](./docs/overview.png)
+
+* Use decorators to mark the functions you need to compile (these functions do not need to be implemented)
+* **TextPy** will identify their functionality and generate code or prompts for them
+* During execution, the code is executed by a code execution virtual machine (Python), while prompts are executed by a prompt execution virtual machine (LLM)
+
 ### 👾 Quick Start - Amazing Example - Daily arXiv
 
 **Example**: Automatically fetch daily updates from arXiv, filter papers by topic, translate abstracts into Chinese, store them in a database, and generate a markdown file to display the abstracts.
