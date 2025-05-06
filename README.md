@@ -44,6 +44,44 @@ $ docker pull ghcr.io/yezhengmao1/textpy:latest
 * **TextPy** will identify their functionality and generate code or prompts for them
 * During execution, the code is executed by a code execution virtual machine (Python), while prompts are executed by a prompt execution virtual machine (LLM)
 
+### 🦄 Quick Start
+
+```python
+# When calling the function, TextPy will read the context,
+# and the AICompiler will auto-generate the code for the CodeFunc.
+# The CodeFunc will run in the Python interpreter by default.
+@code(
+  # Default parameters are as follows
+  # model name, ref: litellm
+  model: str = "deepseek/deepseek-chat",
+  # the api key
+  api_key: Optional[str] = None,
+  # base url for api
+  base_url: Optional[str] = None,
+  # if not None, the generated code will not be changed
+  cache: Optional[str] = ".cache",
+  # if not None, the provided code will be executed
+  code: Optional[str] = None,
+  # provide some package's information to assist in code generation
+  pypi_package: Optional[str] = None,
+)
+def python_code(*, paramters: Type) -> Type:...
+
+# When calling the function, TextPy will read the context,
+# and the AICompiler will auto-generate the prompt for the TextFunc.
+# The TextFunc contains a prompt that implements the function's role and will call a large language model (LLM) for results.
+@code(
+  # Default parameters are as follows
+  model: str = "deepseek/deepseek-chat",
+  api_key: Optional[str] = None,
+  base_url: Optional[str] = None,
+  cache: Optional[str] = ".cache",
+  # if not None, the provided prompt will be used
+  prompt : Optional[str] = None,
+)
+def llm_prompt(*, paramters: Type) -> Type:...
+```
+
 ### 👾 Quick Start - Amazing Example - Daily arXiv
 
 **Example**: Automatically fetch daily updates from arXiv, filter papers by topic, translate abstracts into Chinese, store them in a database, and generate a markdown file to display the abstracts.
@@ -106,9 +144,8 @@ Community contributions are more than welcome, whether it be to fix bugs or to a
 ### 📜 Citation
 ```latex
 @misc{ye2025textpy,
-  author = {Zhengmao Ye, Shuyun Yang, Zelong Huang, Jie Zuo, Mingjie Tang},
   title = {TextPy: Collaborative Agent Workflow through Programming and Prompting},
-  year = {2025},
   howpublished = {\url{https://github.com/yezhengmao1/TextPy}}
+  year = {2025},
 }
 ```
