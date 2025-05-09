@@ -70,7 +70,7 @@ def python_code(*, paramters: Type) -> Type:...
 # When calling the function, TextPy will read the context,
 # and the AICompiler will auto-generate the prompt for the TextFunc.
 # The TextFunc contains a prompt that implements the function's role and will call a large language model (LLM) for results.
-@code(
+@text(
   # Default parameters are as follows
   model: str = "deepseek/deepseek-chat",
   api_key: Optional[str] = None,
