@@ -30,6 +30,8 @@ class TextFunc(BaseFunc):
         # safe replace
         prompt = self.prompt_
         for key, value in kwargs.items():
+            if not isinstance(value, str):
+                value = json.dumps(value, ensure_ascii=False)
             replace_key = "{" + key + "}"
             if replace_key not in prompt:
                 continue
