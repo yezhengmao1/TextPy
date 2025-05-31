@@ -29,6 +29,9 @@ story_metadata = {
     ]
 }
 
+language = "zh"
+# The language of the story, can be "zh" or "en"
+
 class StoryNode:
     is_critical_plot_point: bool
     should_switch_to_next_plot_point: bool
@@ -91,14 +94,15 @@ class StoryStack:
 # check_failed_reasons stores the reasons why previously generated paragraphs failed, in order to avoid making the same mistakes again.
 # A paragraph contains 100 to 200 words.
 # If current_critical_plot is already the last element in context['outline'], the story must end in this paragraph, and paragraphs longer than 200 words are allowed.
-# Write in English.
-def generate_paragraph(*, story_metadata: str, context:list[str], task:str, check_failed_reasons: list[str], current_critical_plot:str)->str:...
+# Use the language parameter to specify the language of the generated paragraph
+def generate_paragraph(*, story_metadata: str, context:str, task:str, check_failed_reasons: str, current_critical_plot:str, language:str)->str:...
 
 @text(cache=CACHE_DIR)
 # Refer to the context of the node and generate the next task according to the current paragraph and story_metadata, like "Develop the conflict between the protagonist and the corrupt judge."
 # if the story is end, set task to "end"
 # If current_critical_plot is already the last element in context['outline'], you must return "end".
-def generate_next_task(*, story_metadata: str, context:list[str], paragraph:str ,current_critical_plot:str)->str:...
+# Use the language parameter to specify the language of the generated paragraph
+def generate_next_task(*, story_metadata: str, context:str, paragraph:str ,current_critical_plot:str, language:str)->str:...
 
 @text(cache=CACHE_DIR)
 # Determine whether the paragraph matches a key plot point in the outline.
@@ -114,7 +118,7 @@ def judge_should_switch_to_next_plot_point(*, outline:str,paragraph:str,current_
 # If new characters appear, add them to adding_roles in the format name:description,and set match=True; otherwise, set adding_roles to None
 # If the description of characters match story_metadata['role'], then match = True and reason = ""
 # If the description of characters do not match story_metadata['role'], then match = False and reason contains the reason for the mismatch
-def check_role(*, paragraph:str, roles: dict[str,str]) -> dict: ...
+def check_role(*, paragraph:str, roles: str) -> dict: ...
 
 @text(cache=CACHE_DIR)
 # Check whether the story_passage of the node does NOT conflict with the background in story_metadata['background'].
@@ -126,7 +130,7 @@ def check_background(*, paragraph: str, background: str) -> dict: ...
 @text(cache=CACHE_DIR)
 # Rewrite the paragraph based on the task, current_critical_plot, and check_failed_reasons
 # Return the rewritten paragraph
-def rewrite(*, paragraph: str, context:list[str], task:str, current_critical_plot:str,check_failed_reasons: list[str])->str: ...
+def rewrite(*, paragraph: str, context:str, task:str, current_critical_plot:str,check_failed_reasons: str)->str: ...
 
 @code(cache=CACHE_DIR)
 # Starting from the top of the stack, count down until the first critical plot point or the bottom of the stack. 
@@ -173,14 +177,16 @@ if __name__ == "__main__":
             story_metadata=json.dumps(story_metadata),
             context=json.dumps(story_stack.top().context),
             task=story_stack.top().next_task,
-            check_failed_reasons=check_failed_reasons,
-            current_critical_plot=story_metadata['outline'][current_critical_plot_index]
+            check_failed_reasons=json.dumps(check_failed_reasons),
+            current_critical_plot=story_metadata['outline'][current_critical_plot_index],
+            language=str(language)
         )
         next_task = generate_next_task(
             story_metadata=json.dumps(story_metadata),
             context=json.dumps(story_stack.top().context),
             paragraph=paragraph,
-            current_critical_plot=story_metadata['outline'][current_critical_plot_index]
+            current_critical_plot=story_metadata['outline'][current_critical_plot_index],
+            language=str(language)
         )
         context = story_stack.top().context[-3:] + [paragraph]
         is_critical_plot_point = judge_paragraph_is_critical_plot_point(
@@ -199,7 +205,7 @@ if __name__ == "__main__":
         logger.info(f"judge whether the paragraph should switch to next plot point:{should_switch_to_next_plot_point}")
 
         # check the node
-        check_role_result = check_role(paragraph=paragraph, roles=story_metadata['role'])
+        check_role_result = check_role(paragraph=paragraph, roles=json.dumps(story_metadata['role']))
         check_background_result = check_background(paragraph=paragraph, background=story_metadata['background'])
         if not check_role_result['match']:
             logger.info("don't match the roles in story_metadata['role']")
@@ -210,13 +216,13 @@ if __name__ == "__main__":
                 logger.info(f"The {i}-th attempt")
                 rewrite_paragraph = rewrite(
                     paragraph=rewrite_paragraph,
-                    context=story_stack.top().context,
+                    context=json.dumps(story_stack.top().context),
                     task=story_stack.top().next_task,
                     current_critical_plot=story_metadata['outline'][current_critical_plot_index],
-                    check_failed_reasons=check_failed_reasons
+                    check_failed_reasons=json.dumps(check_failed_reasons)
                 )
                 logger.info(f"rewrite paragraph:{i + 1}")
-                check_role_result = check_role(paragraph=rewrite_paragraph, roles=story_metadata['role'])
+                check_role_result = check_role(paragraph=rewrite_paragraph, roles=json.dumps(story_metadata['role']))
                 if check_role_result['match']:
                     paragraph = rewrite_paragraph
                     break
